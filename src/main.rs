@@ -33,14 +33,20 @@ fn run_controller() {
         .enable_all()
         .build()
         .expect("tokio runtime");
-    let synthesize: lava_operator::controller::SynthesizeFn =
-        Arc::new(|_src, _b, _g| {
-            // Placeholder: the magma-lava bridge plugs in here. Until
-            // that crate ships, the controller stubs out as an
-            // empty terraform.json so the reconcile loop is exercisable
-            // end-to-end against a real cluster.
-            Ok(serde_json::json!({ "resource": {} }))
-        });
+    let synthesize: lava_operator::controller::SynthesizeFn = {
+        #[cfg(feature = "magma-bridge")]
+        {
+            lava_operator::magma_bridge::magma_lava_synthesize()
+        }
+        #[cfg(not(feature = "magma-bridge"))]
+        {
+            Arc::new(|_src, _b, _g| {
+                // Built without magma-bridge — stub so the loop runs
+                // end-to-end against a cluster, but synth is a no-op.
+                Ok(serde_json::json!({ "resource": {} }))
+            })
+        }
+    };
     if let Err(e) = rt.block_on(lava_operator::controller::run(synthesize)) {
         eprintln!("controller exited with error: {e}");
         std::process::exit(1);

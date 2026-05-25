@@ -49,6 +49,9 @@
 #[cfg(feature = "controller")]
 pub mod controller;
 
+#[cfg(all(feature = "controller", feature = "magma-bridge"))]
+pub mod magma_bridge;
+
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;

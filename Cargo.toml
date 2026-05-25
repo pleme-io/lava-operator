@@ -6,7 +6,7 @@ license = "MIT"
 name = "lava-operator"
 readme = "README.md"
 repository = "https://github.com/pleme-io/lava-operator"
-version = "0.2.1"
+version = "0.3.0"
 
 [lib]
 name = "lava_operator"
@@ -34,6 +34,10 @@ controller = [
   "dep:tracing-subscriber",
   "dep:anyhow",
 ]
+# `magma-bridge` plugs magma-lava in as the synthesize backend. Use
+# together with `controller` to get the binary's `run` subcommand
+# driving real .tlisp → terraform.json synthesis in cluster.
+magma-bridge = ["dep:magma-lava"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
@@ -51,3 +55,6 @@ schemars = { version = "0.8", optional = true }
 tracing = { version = "0.1", optional = true }
 tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter"] }
 anyhow = { version = "1", optional = true }
+
+# magma bridge — opt-in only via --features magma-bridge.
+magma-lava = { git = "https://github.com/pleme-io/magma-lava", branch = "main", optional = true }
