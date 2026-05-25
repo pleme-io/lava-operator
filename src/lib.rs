@@ -252,8 +252,30 @@ pub fn crd_yaml() -> String {
 }
 
 /// Emit every CRD the operator owns, joined with `---` separators
-/// so the output is a single `kubectl apply -f -` stream.
+/// so the output is a single `kubectl apply -f -` stream. Each CRD
+/// carries a full `openAPIV3Schema` derived from the kube-rs
+/// `#[derive(CustomResource, JsonSchema)]` shapes — apiextensions/v1
+/// requires this; the hand-rolled `crd_yaml_for` helper below is
+/// kept only for the backwards-compat single-CRD form.
+#[cfg(feature = "controller")]
 pub fn crd_yaml_all() -> String {
+    use kube::CustomResourceExt;
+    let parts: Vec<String> = [
+        serde_yaml::to_string(&crate::controller::LavaArchitecture::crd()).unwrap_or_default(),
+        serde_yaml::to_string(&crate::controller::RemediationPolicy::crd()).unwrap_or_default(),
+        serde_yaml::to_string(&crate::controller::LavaArchitectureDependency::crd())
+            .unwrap_or_default(),
+    ]
+    .into_iter()
+    .collect();
+    parts.join("---\n")
+}
+
+#[cfg(not(feature = "controller"))]
+pub fn crd_yaml_all() -> String {
+    // Without the controller feature, fall back to the schema-less
+    // hand-rolled form — kept so library consumers can still preview
+    // CRD names without pulling kube-rs.
     let parts = [
         crd_yaml_for("LavaArchitecture", "lavaarchitectures", "lavaarchitecture"),
         crd_yaml_for("RemediationPolicy", "remediationpolicies", "remediationpolicy"),

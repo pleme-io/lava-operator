@@ -50,12 +50,56 @@ fn default_engine() -> String {
     "embedded".to_string()
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+/// Flat source descriptor — `inline`, `name`, and the three git
+/// fields are all optional + the consumer picks the populated one.
+/// Flat shape avoids kube-rs JsonSchema discriminated-union pitfalls
+/// + matches the YAML authoring shape operators expect:
+///
+///     source:
+///       inline: |
+///         (deflava-architecture ...)
+///
+///     source:
+///       name: aws-vpc-network
+///
+///     source:
+///       url:  https://github.com/...
+///       rev:  main
+///       path: infra/vpc.tlisp
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
-pub enum SourceCR {
-    Inline { inline: String },
-    Name { name: String },
-    Git { url: String, rev: String, path: String },
+pub struct SourceCR {
+    #[serde(default)]
+    pub inline: Option<String>,
+    #[serde(default)]
+    pub name: Option<String>,
+    #[serde(default)]
+    pub url: Option<String>,
+    #[serde(default)]
+    pub rev: Option<String>,
+    #[serde(default)]
+    pub path: Option<String>,
+}
+
+impl SourceCR {
+    /// Pick the populated variant. Precedence: inline > name > git.
+    /// Returns `None` when the source is empty.
+    #[must_use]
+    pub fn variant(&self) -> Option<crate::Source> {
+        if let Some(inline) = &self.inline {
+            Some(crate::Source::Inline { inline: inline.clone() })
+        } else if let Some(name) = &self.name {
+            Some(crate::Source::Name { name: name.clone() })
+        } else if let (Some(url), Some(rev), Some(path)) = (&self.url, &self.rev, &self.path) {
+            Some(crate::Source::Git {
+                url: url.clone(),
+                rev: rev.clone(),
+                path: path.clone(),
+            })
+        } else {
+            None
+        }
+    }
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
@@ -131,18 +175,29 @@ fn default_tier_wait() -> String {
     "PT15M".to_string()
 }
 
+/// Flat notify-target shape — `kind` is a free string + remaining
+/// fields are optional. The lava-anomaly typed enum
+/// (`Slack | Ntfy | Pagerduty | Email | Webhook | Custom`) is
+/// reconstructed at use-site. Flat layout keeps the JsonSchema
+/// derivation simple (kube-rs apiextensions/v1 rejects tagged-enum
+/// CRDs with per-variant property schemas).
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
-#[serde(tag = "kind", rename_all = "kebab-case")]
-pub enum NotifyTargetCR {
-    Slack { webhook_secret_ref: String },
-    Ntfy { topic: String },
-    Pagerduty { service_key_secret_ref: String },
-    Email { address: String },
-    Webhook {
-        url: String,
-        #[serde(default)]
-        secret_ref: Option<String>,
-    },
+#[serde(rename_all = "camelCase")]
+pub struct NotifyTargetCR {
+    /// `slack` | `ntfy` | `pagerduty` | `email` | `webhook`.
+    pub kind: String,
+    #[serde(default)]
+    pub webhook_secret_ref: Option<String>,
+    #[serde(default)]
+    pub topic: Option<String>,
+    #[serde(default)]
+    pub service_key_secret_ref: Option<String>,
+    #[serde(default)]
+    pub address: Option<String>,
+    #[serde(default)]
+    pub url: Option<String>,
+    #[serde(default)]
+    pub secret_ref: Option<String>,
 }
 
 impl RemediationPolicySpec {
@@ -431,15 +486,9 @@ fn to_lib_spec(spec: &LavaArchitectureSpecCR) -> LavaArchitectureSpec {
         bindings.insert(k.clone(), v.clone());
     }
     LavaArchitectureSpec {
-        source: match &spec.source {
-            SourceCR::Inline { inline } => Source::Inline { inline: inline.clone() },
-            SourceCR::Name { name } => Source::Name { name: name.clone() },
-            SourceCR::Git { url, rev, path } => Source::Git {
-                url: url.clone(),
-                rev: rev.clone(),
-                path: path.clone(),
-            },
-        },
+        source: spec.source.variant().unwrap_or_else(|| Source::Inline {
+            inline: "(deflava-architecture empty :inputs () :resources ())".to_string(),
+        }),
         bindings,
         gate: spec.gate.clone(),
         engine: spec.engine.clone(),
@@ -461,7 +510,10 @@ mod tests {
     #[test]
     fn to_lib_spec_round_trips_inline_source() {
         let cr = LavaArchitectureSpecCR {
-            source: SourceCR::Inline { inline: "(x)".into() },
+            source: SourceCR {
+                inline: Some("(x)".into()),
+                ..Default::default()
+            },
             bindings: std::collections::BTreeMap::from_iter([(
                 "name".to_string(),
                 "prod".to_string(),
