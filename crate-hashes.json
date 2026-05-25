@@ -13,13 +13,6 @@
   "git+https://github.com/pleme-io/lava-types?branch=main#0.1.1": "0rzi3c504jvsk8j6gnqssbdac9j6gji48sfwi8ghpjydyh9g19w4",
   "git+https://github.com/pleme-io/lava-viggy?branch=main#0.1.1": "1klgc9wfssynsyl7gr15cavx5zp7mdymm71ikvfy9m8dia0c9c7f",
   "git+https://github.com/pleme-io/magma-lava?branch=main#0.2.2": "0yl9wn414kzhfvrmvzr9mib743n138zhcnw3fihbi8hhb6426q8h",
-  "git+https://github.com/pleme-io/magma?branch=main#magma-attest@0.1.0": "1sz516p3ndjbgzjxjy2a6nk1pq01vhc7cacx9m0q12cwgrnkb619",
-  "git+https://github.com/pleme-io/magma?branch=main#magma-backend@0.1.0": "1sz516p3ndjbgzjxjy2a6nk1pq01vhc7cacx9m0q12cwgrnkb619",
   "git+https://github.com/pleme-io/magma?branch=main#magma-config@0.1.0": "1sz516p3ndjbgzjxjy2a6nk1pq01vhc7cacx9m0q12cwgrnkb619",
-  "git+https://github.com/pleme-io/magma?branch=main#magma-graph@0.1.0": "1sz516p3ndjbgzjxjy2a6nk1pq01vhc7cacx9m0q12cwgrnkb619",
-  "git+https://github.com/pleme-io/magma?branch=main#magma-plan@0.1.0": "1sz516p3ndjbgzjxjy2a6nk1pq01vhc7cacx9m0q12cwgrnkb619",
-  "git+https://github.com/pleme-io/magma?branch=main#magma-plugin@0.1.0": "1sz516p3ndjbgzjxjy2a6nk1pq01vhc7cacx9m0q12cwgrnkb619",
-  "git+https://github.com/pleme-io/magma?branch=main#magma-protocol@0.1.0": "1sz516p3ndjbgzjxjy2a6nk1pq01vhc7cacx9m0q12cwgrnkb619",
-  "git+https://github.com/pleme-io/magma?branch=main#magma-state@0.1.0": "1sz516p3ndjbgzjxjy2a6nk1pq01vhc7cacx9m0q12cwgrnkb619",
   "git+https://github.com/pleme-io/magma?branch=main#magma-types@0.1.0": "1sz516p3ndjbgzjxjy2a6nk1pq01vhc7cacx9m0q12cwgrnkb619"
 }
