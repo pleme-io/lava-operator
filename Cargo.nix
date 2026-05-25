@@ -4741,6 +4741,7 @@ rec {
         ];
         features = {
           "controller" = [ "dep:kube" "dep:k8s-openapi" "dep:tokio" "dep:futures" "dep:schemars" "dep:tracing" "dep:tracing-subscriber" "dep:anyhow" ];
+          "default" = [ "controller" "magma-bridge" ];
           "magma-bridge" = [ "dep:magma-lava" ];
         };
         resolvedDefaultFeatures = [ "controller" "default" "magma-bridge" ];

@@ -20,10 +20,13 @@ path = "src/main.rs"
 pedantic = "warn"
 
 [features]
-default = []
+# Default is the full operator surface — the shipped container image
+# wants both `controller` (kube-rs reconcile loop) and `magma-bridge`
+# (in-process magma planning). Library consumers that only need the
+# typed CRD + state machine can opt out with --no-default-features.
+default = ["controller", "magma-bridge"]
 # `controller` pulls in kube-rs + tokio + futures and exposes the
-# real reconcile-loop binary entry point. Library consumers that only
-# need the typed CRD + state machine can stay on the default feature set.
+# real reconcile-loop binary entry point.
 controller = [
   "dep:kube",
   "dep:k8s-openapi",
