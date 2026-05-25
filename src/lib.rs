@@ -46,6 +46,7 @@
 
 #![allow(clippy::module_name_repetitions)]
 
+pub mod anomaly_bridge;
 pub mod attest;
 pub mod drift;
 pub mod finalizer;

@@ -1050,6 +1050,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "lava-anomaly"
+version = "0.1.0"
+source = "git+https://github.com/pleme-io/lava-anomaly?branch=main#068fd3d9861f807b1a251c1ad37656f5469c807b"
+dependencies = [
+ "chrono",
+ "indexmap",
+ "lava-drift",
+ "lava-outcome-chain",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "lava-arch"
 version = "0.1.2"
 source = "git+https://github.com/pleme-io/lava-arch?branch=main#81aceaba14463873bb7eddf901bc37911b527644"
@@ -1130,7 +1144,7 @@ dependencies = [
 
 [[package]]
 name = "lava-operator"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1138,6 +1152,7 @@ dependencies = [
  "indexmap",
  "k8s-openapi",
  "kube",
+ "lava-anomaly",
  "lava-drift",
  "lava-outcome-chain",
  "magma-lava",
