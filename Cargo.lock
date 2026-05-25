@@ -1115,6 +1115,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "lava-dependency"
+version = "0.1.1"
+source = "git+https://github.com/pleme-io/lava-dependency?branch=main#f681ce7d98e9edc96b4abd290b8ae999aea6b710"
+dependencies = [
+ "indexmap",
+ "lava-anomaly",
+ "lava-drift",
+ "lava-outcome-chain",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "lava-drift"
 version = "0.1.1"
 source = "git+https://github.com/pleme-io/lava-drift?branch=main#2ed1a582ebafa62030d3971301c30eceb4508a7a"
@@ -1153,8 +1167,10 @@ dependencies = [
  "k8s-openapi",
  "kube",
  "lava-anomaly",
+ "lava-dependency",
  "lava-drift",
  "lava-outcome-chain",
+ "lava-viggy",
  "magma-lava",
  "schemars",
  "serde",
@@ -1213,6 +1229,21 @@ version = "0.1.1"
 source = "git+https://github.com/pleme-io/lava-types?branch=main#55484f2312008614740bf23c143a67d70edd8e6c"
 dependencies = [
  "serde",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "lava-viggy"
+version = "0.1.1"
+source = "git+https://github.com/pleme-io/lava-viggy?branch=main#19296daa46a762827a4fe100e26dafce6762002d"
+dependencies = [
+ "chrono",
+ "indexmap",
+ "lava-anomaly",
+ "lava-drift",
+ "lava-outcome-chain",
+ "serde",
+ "serde_json",
  "thiserror 2.0.18",
 ]
 

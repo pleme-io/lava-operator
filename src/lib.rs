@@ -50,6 +50,7 @@ pub mod anomaly_bridge;
 pub mod attest;
 pub mod drift;
 pub mod finalizer;
+pub mod viggy_loop;
 
 #[cfg(feature = "controller")]
 pub mod controller;
@@ -244,13 +245,34 @@ pub enum ReconcileError {
 }
 
 /// Render the LavaArchitecture CRD YAML for `kubectl apply`.
+/// Backwards-compat single-CRD form — new consumers should use
+/// [`crd_yaml_all`] which emits every CRD the operator owns.
 pub fn crd_yaml() -> String {
-    // Typed CRD value via serde_yaml — no format!() of YAML syntax.
+    crd_yaml_for("LavaArchitecture", "lavaarchitectures", "lavaarchitecture")
+}
+
+/// Emit every CRD the operator owns, joined with `---` separators
+/// so the output is a single `kubectl apply -f -` stream.
+pub fn crd_yaml_all() -> String {
+    let parts = [
+        crd_yaml_for("LavaArchitecture", "lavaarchitectures", "lavaarchitecture"),
+        crd_yaml_for("RemediationPolicy", "remediationpolicies", "remediationpolicy"),
+        crd_yaml_for(
+            "LavaArchitectureDependency",
+            "lavaarchitecturedependencies",
+            "lavaarchitecturedependency",
+        ),
+    ];
+    parts.join("---\n")
+}
+
+fn crd_yaml_for(kind: &str, plural: &str, singular: &str) -> String {
+    let list_kind = format!("{kind}List");
     let names = serde_yaml::Mapping::from_iter([
-        ("kind".into(), "LavaArchitecture".into()),
-        ("listKind".into(), "LavaArchitectureList".into()),
-        ("plural".into(), "lavaarchitectures".into()),
-        ("singular".into(), "lavaarchitecture".into()),
+        ("kind".into(), kind.into()),
+        ("listKind".into(), list_kind.into()),
+        ("plural".into(), plural.into()),
+        ("singular".into(), singular.into()),
     ]);
     let version = serde_yaml::Mapping::from_iter([
         ("name".into(), "v1alpha1".into()),
@@ -266,6 +288,7 @@ pub fn crd_yaml() -> String {
             serde_yaml::Value::Sequence(vec![serde_yaml::Value::Mapping(version)]),
         ),
     ]);
+    let metadata_name = format!("{plural}.lava.pleme.io");
     let crd = serde_yaml::Mapping::from_iter([
         ("apiVersion".into(), "apiextensions.k8s.io/v1".into()),
         ("kind".into(), "CustomResourceDefinition".into()),
@@ -273,7 +296,7 @@ pub fn crd_yaml() -> String {
             "metadata".into(),
             serde_yaml::Value::Mapping(serde_yaml::Mapping::from_iter([(
                 "name".into(),
-                "lavaarchitectures.lava.pleme.io".into(),
+                metadata_name.into(),
             )])),
         ),
         ("spec".into(), serde_yaml::Value::Mapping(crd_spec)),
@@ -371,6 +394,16 @@ mod tests {
         assert!(yaml.contains("name: lavaarchitectures.lava.pleme.io"));
         assert!(yaml.contains("group: lava.pleme.io"));
         assert!(yaml.contains("v1alpha1"));
+    }
+
+    #[test]
+    fn crd_yaml_all_emits_every_owned_crd() {
+        let yaml = crd_yaml_all();
+        assert!(yaml.contains("lavaarchitectures.lava.pleme.io"));
+        assert!(yaml.contains("remediationpolicies.lava.pleme.io"));
+        assert!(yaml.contains("lavaarchitecturedependencies.lava.pleme.io"));
+        // Three docs separated by `---`.
+        assert_eq!(yaml.matches("kind: CustomResourceDefinition").count(), 3);
     }
 
     #[test]

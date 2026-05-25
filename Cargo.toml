@@ -49,6 +49,8 @@ chrono = { version = "0.4", features = ["serde"] }
 lava-outcome-chain = { git = "https://github.com/pleme-io/lava-outcome-chain", branch = "main" }
 lava-drift = { git = "https://github.com/pleme-io/lava-drift", branch = "main" }
 lava-anomaly = { git = "https://github.com/pleme-io/lava-anomaly", branch = "main" }
+lava-viggy = { git = "https://github.com/pleme-io/lava-viggy", branch = "main" }
+lava-dependency = { git = "https://github.com/pleme-io/lava-dependency", branch = "main" }
 
 # Feature-gated kube-rs stack.
 kube = { version = "0.97", default-features = false, features = ["runtime", "derive", "client", "rustls-tls"], optional = true }

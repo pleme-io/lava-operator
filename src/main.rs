@@ -9,12 +9,17 @@
 //! `lava-operator > crd.yaml` pipelines.
 
 fn main() {
-    let cmd = std::env::args().nth(1).unwrap_or_else(|| "crd".to_string());
+    let cmd = std::env::args().nth(1).unwrap_or_else(|| "crds".to_string());
     match cmd.as_str() {
+        // Single CRD (LavaArchitecture) — backwards compat for any
+        // existing `lava-operator > crd.yaml` pipeline.
         "crd" => print!("{}", lava_operator::crd_yaml()),
+        // Every CRD the operator owns (LavaArchitecture +
+        // RemediationPolicy + LavaArchitectureDependency).
+        "crds" => print!("{}", lava_operator::crd_yaml_all()),
         "run" => run_controller(),
         other => {
-            eprintln!("unknown subcommand `{other}` (expected: crd | run)");
+            eprintln!("unknown subcommand `{other}` (expected: crd | crds | run)");
             std::process::exit(2);
         }
     }
@@ -22,6 +27,7 @@ fn main() {
 
 #[cfg(feature = "controller")]
 fn run_controller() {
+    #[allow(unused_imports)]
     use std::sync::Arc;
     tracing_subscriber::fmt()
         .with_env_filter(

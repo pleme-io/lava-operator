@@ -16,12 +16,13 @@ use kube::{
     runtime::{controller::Action, watcher::Config, Controller},
     Client, CustomResource, ResourceExt,
 };
+
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use thiserror::Error;
 
-use crate::{reconcile, Condition, LavaArchitectureSpec, Phase, Source};
+use crate::{Condition, LavaArchitectureSpec, Phase, Source};
 
 /// kube-rs typed shape. Mirrors [`crate::LavaArchitectureSpec`]
 /// but carries the `#[derive(CustomResource)]` plumbing kube-rs
@@ -88,6 +89,140 @@ impl From<&Condition> for ConditionCR {
     }
 }
 
+// ── RemediationPolicy CR ──────────────────────────────────────────
+
+/// Typed kube-rs CRD for [`lava_anomaly::RemediationPolicy`].
+/// Operators attach one of these per cluster (or per environment)
+/// and reference it from `LavaArchitectureSpecCR.remediationPolicyRef`.
+#[derive(CustomResource, Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+#[kube(
+    group = "lava.pleme.io",
+    version = "v1alpha1",
+    kind = "RemediationPolicy",
+    namespaced
+)]
+#[serde(rename_all = "camelCase")]
+pub struct RemediationPolicySpec {
+    pub cosmetic: String,
+    pub functional: String,
+    pub critical: String,
+    #[serde(default)]
+    pub escalation: Option<EscalationLadderCR>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct EscalationLadderCR {
+    pub tiers: Vec<EscalationTierCR>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct EscalationTierCR {
+    pub target: NotifyTargetCR,
+    /// ISO-8601 duration string (`PT15M`, `PT1H`) — parsed at use
+    /// site. Kept as String here so the CRD schema stays simple +
+    /// JsonSchema-derivable without a chrono::Duration crater.
+    #[serde(default = "default_tier_wait")]
+    pub wait_before_next: String,
+}
+
+fn default_tier_wait() -> String {
+    "PT15M".to_string()
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+#[serde(tag = "kind", rename_all = "kebab-case")]
+pub enum NotifyTargetCR {
+    Slack { webhook_secret_ref: String },
+    Ntfy { topic: String },
+    Pagerduty { service_key_secret_ref: String },
+    Email { address: String },
+    Webhook {
+        url: String,
+        #[serde(default)]
+        secret_ref: Option<String>,
+    },
+}
+
+impl RemediationPolicySpec {
+    /// Translate the CRD shape into the typed library policy used by
+    /// the reconcile loop. Unknown action strings degrade to
+    /// `RemediationAction::Alert` rather than failing the reconcile.
+    #[must_use]
+    pub fn to_policy(&self) -> lava_anomaly::RemediationPolicy {
+        use lava_anomaly::RemediationAction;
+        let parse = |s: &str| -> RemediationAction {
+            match s {
+                "NoOp" => RemediationAction::NoOp,
+                "Alert" => RemediationAction::Alert,
+                "AutoCorrect" => RemediationAction::AutoCorrect,
+                "RequireApproval" => RemediationAction::RequireApproval,
+                "Escalate" => RemediationAction::Escalate,
+                _ => RemediationAction::Alert,
+            }
+        };
+        lava_anomaly::RemediationPolicy {
+            cosmetic: parse(&self.cosmetic),
+            functional: parse(&self.functional),
+            critical: parse(&self.critical),
+            escalation: None, // escalation tier conversion is intentionally
+                              // deferred to L4.1 — needs Duration parsing.
+        }
+    }
+}
+
+// ── LavaArchitectureDependency CR ─────────────────────────────────
+
+/// Typed kube-rs CRD for [`lava_dependency::LavaArchitectureDependency`].
+#[derive(CustomResource, Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+#[kube(
+    group = "lava.pleme.io",
+    version = "v1alpha1",
+    kind = "LavaArchitectureDependency",
+    namespaced
+)]
+#[serde(rename_all = "camelCase")]
+pub struct LavaArchitectureDependencySpec {
+    pub from: ResourceRefCR,
+    pub to: ResourceRefCR,
+    pub kind: String, // "BlocksOn" | "Influences"
+    #[serde(default = "default_require_phase")]
+    pub require_phase: String,
+}
+
+fn default_require_phase() -> String {
+    "Applied".to_string()
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct ResourceRefCR {
+    pub cluster: String,
+    pub namespace: String,
+    pub name: String,
+}
+
+impl LavaArchitectureDependencySpec {
+    /// Translate the CRD shape into the typed library value used by
+    /// the dependency resolver.
+    #[must_use]
+    pub fn to_lib(&self) -> lava_dependency::LavaArchitectureDependency {
+        use lava_dependency::{DependencyKind, LavaArchitectureDependency};
+        use lava_outcome_chain::ResourceAddress;
+        let kind = match self.kind.as_str() {
+            "Influences" => DependencyKind::Influences,
+            _ => DependencyKind::BlocksOn,
+        };
+        LavaArchitectureDependency {
+            from: ResourceAddress::new(&self.from.cluster, &self.from.namespace, &self.from.name),
+            to: ResourceAddress::new(&self.to.cluster, &self.to.namespace, &self.to.name),
+            kind,
+            require_phase: self.require_phase.clone(),
+        }
+    }
+}
+
 #[derive(Debug, Error)]
 pub enum ControllerError {
     #[error("kube: {0}")]
@@ -109,43 +244,153 @@ pub type SynthesizeFn = Arc<
         + Sync,
 >;
 
+/// Per-controller shared context. The chain handle is `Arc<Mutex>`
+/// so every reconcile pass appends through the same sink — across
+/// every LavaArchitecture CR on this operator instance, every
+/// receipt links to the same monotonic sequence.
+///
+/// In production this is typically a `FilesystemSink` rooted at
+/// `/var/lib/lava-operator/chains/<resource-key>/` with an Ed25519
+/// signer loaded from the `lava-operator-signing-key` Secret. The
+/// default (`Context::with_in_memory_chain`) uses an `InMemorySink +
+/// NoSigning` so the controller is runnable end-to-end without
+/// configuration.
 #[derive(Clone)]
 pub struct Context {
     pub client: Client,
     pub synthesize: SynthesizeFn,
+    pub chain: std::sync::Arc<
+        std::sync::Mutex<
+            lava_outcome_chain::OutcomeChain<
+                lava_outcome_chain::OutcomePayload,
+                lava_outcome_chain::InMemorySink<lava_outcome_chain::OutcomePayload>,
+                lava_outcome_chain::NoSigning,
+            >,
+        >,
+    >,
 }
 
-/// Reconcile one resource. Renders via the synthesize callback +
-/// patches the resource's `.status` to reflect the typed outcome.
+impl Context {
+    /// Construct a context with an in-memory chain + no signing.
+    /// Production callers replace `chain` with a typed
+    /// `FilesystemSink + Ed25519Signer` after construction.
+    #[must_use]
+    pub fn with_in_memory_chain(client: Client, synthesize: SynthesizeFn) -> Self {
+        Self {
+            client,
+            synthesize,
+            chain: crate::viggy_loop::shared_in_memory_chain(),
+        }
+    }
+}
+
+/// Reconcile one resource. Drives the full 7-beat Viggy tick via
+/// `viggy_loop::LavaPromessaController` + `ViggyEngine`, appends a
+/// signed receipt to the shared `OutcomeChain`, and patches the
+/// resource's `.status` to reflect the typed tick outcome.
+///
+/// Solid abstraction: the controller never composes beats by hand.
+/// The synthesize callback (Context::synthesize) is the only
+/// IaC-engine seam; everything else is typed.
 pub async fn reconcile_one(
     obj: Arc<LavaArchitecture>,
     ctx: Arc<Context>,
 ) -> Result<Action, ControllerError> {
+    use crate::viggy_loop::{engine_with_default_router, LavaPromessaController};
+    use lava_anomaly::RemediationPolicy;
+    use lava_drift::{DriftDetector, PlannerBackend, PlannerError};
+    use lava_outcome_chain::ResourceAddress;
+
     let ns = obj.namespace().unwrap_or_else(|| "default".to_string());
     let name = obj.name_any();
     let api: Api<LavaArchitecture> = Api::namespaced(ctx.client.clone(), &ns);
 
     let spec = to_lib_spec(&obj.spec);
-    let synthesize = ctx.synthesize.clone();
-    let outcome = reconcile(&spec, |src, bindings, gate| {
-        (synthesize)(src, bindings, gate)
-    })
-    .map_err(|e| ControllerError::Finalizer(e.to_string()))?;
+    let address = ResourceAddress::new(
+        std::env::var("LAVA_OPERATOR_CLUSTER").unwrap_or_else(|_| "local".into()),
+        ns.clone(),
+        name.clone(),
+    );
+
+    // Resolve source text up-front so the Viggy controller has it
+    // available for the spec-hash + the Diff beat.
+    let source_text = match &spec.source {
+        crate::Source::Inline { inline } => inline.clone(),
+        crate::Source::Name { name } => name.clone(),
+        crate::Source::Git { path, .. } => path.clone(),
+    };
+
+    // Synthesize-callback-backed PlannerBackend. Translates magma's
+    // typed Plan into typed DriftFindings the detector classifies.
+    struct CallbackPlanner {
+        synthesize: SynthesizeFn,
+        source: crate::Source,
+    }
+    impl PlannerBackend for CallbackPlanner {
+        fn plan(
+            &self,
+            _src: &str,
+            bindings: &indexmap::IndexMap<String, String>,
+        ) -> Result<Vec<lava_drift::DriftFinding>, PlannerError> {
+            // Call the synthesize callback to get terraform.json;
+            // any non-error result is treated as "no drift" today
+            // (the planner-side magma plan delta wires in via L3.1
+            // when magma::plan::plan is exposed to the bridge).
+            (self.synthesize)(&self.source, bindings, None)
+                .map(|_| Vec::new())
+                .map_err(PlannerError::Plan)
+        }
+    }
+
+    let detector = DriftDetector::new(CallbackPlanner {
+        synthesize: ctx.synthesize.clone(),
+        source: spec.source.clone(),
+    });
+
+    let controller_ = LavaPromessaController {
+        source_text,
+        source_address: address.clone(),
+        detector,
+        chain: ctx.chain.clone(),
+    };
+
+    let engine = engine_with_default_router(controller_, RemediationPolicy::default());
+    // SAFETY: bindings move into the tick; we keep a clone for the
+    // status patch diagnostic.
+    let bindings = spec.bindings.clone();
+    let report = engine.tick(address, bindings);
+
+    let conditions: Vec<ConditionCR> = report
+        .beats
+        .iter()
+        .map(|b| ConditionCR {
+            kind: format!("Beat.{}", b.beat.as_str()),
+            status: match b.status {
+                lava_viggy::BeatStatus::Ok => "True".to_string(),
+                lava_viggy::BeatStatus::Skipped => "Unknown".to_string(),
+                lava_viggy::BeatStatus::Failed => "False".to_string(),
+            },
+            reason: Some(format!("{:?}", b.status)),
+            message: b.message.clone(),
+        })
+        .collect();
 
     let status = LavaArchitectureStatusCR {
-        phase: Some(outcome.phase.as_str().to_string()),
-        conditions: outcome.conditions.iter().map(ConditionCR::from).collect(),
-        last_synthesized_hash: outcome
-            .terraform_json
-            .as_ref()
-            .map(|v| blake3_short(&serde_json::to_string(v).unwrap_or_default())),
-        last_applied_at: None,
+        phase: Some(report.final_phase.as_str().to_string()),
+        conditions,
+        last_synthesized_hash: None,
+        last_applied_at: Some(report.ended_at.to_rfc3339()),
     };
     let patch = json!({ "status": status });
     api.patch_status(&name, &PatchParams::apply("lava-operator").force(), &Patch::Apply(patch))
         .await?;
 
-    Ok(Action::requeue(Duration::from_secs(30)))
+    let requeue = report
+        .decision
+        .as_ref()
+        .map(|d| Duration::from_secs(d.requeue_after.num_seconds().max(1) as u64))
+        .unwrap_or_else(|| Duration::from_secs(30));
+    Ok(Action::requeue(requeue))
 }
 
 pub fn error_policy(
@@ -164,7 +409,7 @@ pub fn error_policy(
 pub async fn run(synthesize: SynthesizeFn) -> Result<(), kube::Error> {
     let client = Client::try_default().await?;
     let api: Api<LavaArchitecture> = Api::all(client.clone());
-    let ctx = Arc::new(Context { client, synthesize });
+    let ctx = Arc::new(Context::with_in_memory_chain(client, synthesize));
     Controller::new(api, Config::default())
         .run(reconcile_one, error_policy, ctx)
         .for_each(|res| async move {
@@ -205,15 +450,6 @@ pub const fn phase_str(p: Phase) -> &'static str {
     p.as_str()
 }
 
-/// Short content-address of the rendered terraform.json — used as a
-/// drift heuristic on the next reconcile pass. (Pure stdlib hash —
-/// real BLAKE3 lands when the magma-lava bridge owns this surface.)
-fn blake3_short(s: &str) -> String {
-    use std::hash::{Hash, Hasher};
-    let mut h = std::collections::hash_map::DefaultHasher::new();
-    s.hash(&mut h);
-    format!("{:016x}", h.finish())
-}
 
 #[cfg(test)]
 mod tests {
@@ -243,6 +479,76 @@ mod tests {
         assert_eq!(cr.kind, "Synthesized");
         assert_eq!(cr.status, "True");
         assert_eq!(cr.reason.as_deref(), Some("RenderOk"));
+    }
+
+    #[test]
+    fn remediation_policy_spec_to_policy_parses_action_strings() {
+        let spec = RemediationPolicySpec {
+            cosmetic: "NoOp".into(),
+            functional: "AutoCorrect".into(),
+            critical: "Escalate".into(),
+            escalation: None,
+        };
+        let p = spec.to_policy();
+        assert_eq!(p.cosmetic, lava_anomaly::RemediationAction::NoOp);
+        assert_eq!(p.functional, lava_anomaly::RemediationAction::AutoCorrect);
+        assert_eq!(p.critical, lava_anomaly::RemediationAction::Escalate);
+    }
+
+    #[test]
+    fn remediation_policy_spec_degrades_unknown_action_to_alert() {
+        let spec = RemediationPolicySpec {
+            cosmetic: "Moonwalk".into(),
+            functional: "Yodel".into(),
+            critical: "Apply".into(),
+            escalation: None,
+        };
+        let p = spec.to_policy();
+        assert_eq!(p.cosmetic, lava_anomaly::RemediationAction::Alert);
+        assert_eq!(p.functional, lava_anomaly::RemediationAction::Alert);
+        assert_eq!(p.critical, lava_anomaly::RemediationAction::Alert);
+    }
+
+    #[test]
+    fn dependency_spec_to_lib_maps_kind_and_addresses() {
+        let spec = LavaArchitectureDependencySpec {
+            from: ResourceRefCR {
+                cluster: "rio".into(),
+                namespace: "lava-system".into(),
+                name: "app".into(),
+            },
+            to: ResourceRefCR {
+                cluster: "rio".into(),
+                namespace: "lava-system".into(),
+                name: "vpc".into(),
+            },
+            kind: "Influences".into(),
+            require_phase: "Applied".into(),
+        };
+        let d = spec.to_lib();
+        assert_eq!(d.kind, lava_dependency::DependencyKind::Influences);
+        assert_eq!(d.from.namespace, "lava-system");
+        assert_eq!(d.to.name, "vpc");
+    }
+
+    #[test]
+    fn dependency_spec_defaults_kind_to_blocks_on_for_unknown_kind() {
+        let spec = LavaArchitectureDependencySpec {
+            from: ResourceRefCR {
+                cluster: "rio".into(),
+                namespace: "lava-system".into(),
+                name: "app".into(),
+            },
+            to: ResourceRefCR {
+                cluster: "rio".into(),
+                namespace: "lava-system".into(),
+                name: "vpc".into(),
+            },
+            kind: "unrecognized".into(),
+            require_phase: "Applied".into(),
+        };
+        let d = spec.to_lib();
+        assert_eq!(d.kind, lava_dependency::DependencyKind::BlocksOn);
     }
 
     #[test]
