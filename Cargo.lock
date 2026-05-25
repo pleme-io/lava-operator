@@ -1051,8 +1051,8 @@ dependencies = [
 
 [[package]]
 name = "lava-anomaly"
-version = "0.1.0"
-source = "git+https://github.com/pleme-io/lava-anomaly?branch=main#068fd3d9861f807b1a251c1ad37656f5469c807b"
+version = "0.1.1"
+source = "git+https://github.com/pleme-io/lava-anomaly?branch=main#07d73ab2102781dbaeb132093db66690a97bf086"
 dependencies = [
  "chrono",
  "indexmap",
@@ -1116,8 +1116,8 @@ dependencies = [
 
 [[package]]
 name = "lava-drift"
-version = "0.1.0"
-source = "git+https://github.com/pleme-io/lava-drift?branch=main#43c158944bbd54dca35ac2307eb4f627176a2334"
+version = "0.1.1"
+source = "git+https://github.com/pleme-io/lava-drift?branch=main#2ed1a582ebafa62030d3971301c30eceb4508a7a"
 dependencies = [
  "chrono",
  "indexmap",
@@ -1144,7 +1144,7 @@ dependencies = [
 
 [[package]]
 name = "lava-operator"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "anyhow",
  "chrono",
