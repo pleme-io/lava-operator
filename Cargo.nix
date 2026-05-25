@@ -4626,7 +4626,7 @@ rec {
       };
       "lava-operator" = rec {
         crateName = "lava-operator";
-        version = "0.5.5";
+        version = "0.5.6";
         edition = "2024";
         crateBin = [
           {
