@@ -46,6 +46,10 @@
 
 #![allow(clippy::module_name_repetitions)]
 
+pub mod attest;
+pub mod drift;
+pub mod finalizer;
+
 #[cfg(feature = "controller")]
 pub mod controller;
 
@@ -130,8 +134,32 @@ pub enum Phase {
     Planned,
     /// engine apply succeeded; live resources match desired state.
     Applied,
+    /// Drift detector found non-NoOp changes against live state;
+    /// the next tick will reconverge per the remediation policy.
+    Drifted,
+    /// Reconciling to close detected drift.
+    Reconverging,
+    /// Finalizer is running — destroy in progress before CR removal.
+    Finalizing,
     /// Last reconcile failed (see conditions for details).
     Failed,
+}
+
+impl Phase {
+    /// Stable string token. Used in OutcomeChain payload + CRD status.
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Pending => "Pending",
+            Self::Synthesized => "Synthesized",
+            Self::Planned => "Planned",
+            Self::Applied => "Applied",
+            Self::Drifted => "Drifted",
+            Self::Reconverging => "Reconverging",
+            Self::Finalizing => "Finalizing",
+            Self::Failed => "Failed",
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

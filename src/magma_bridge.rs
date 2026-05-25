@@ -9,6 +9,7 @@
 
 use std::sync::Arc;
 
+use crate::finalizer::DestroyBackend;
 use crate::Source;
 use indexmap::IndexMap;
 
@@ -42,6 +43,38 @@ fn source_to_lava_source(src: &Source) -> magma_lava::LavaSource {
                 path: std::path::PathBuf::from(path),
             }
         }
+    }
+}
+
+/// Embedded-magma [`DestroyBackend`] impl. The finalizer holds this
+/// and calls `destroy(source, bindings)` when a LavaArchitecture CR
+/// is removed. Re-synthesizes the .tlisp + runs magma-lava +
+/// returns the rendered terraform.json as a diagnostic — actual
+/// resource teardown lands when magma exposes a destroy entry point
+/// (currently the plan is rendered + the diagnostic captures the
+/// shape that WOULD be destroyed; full destroy execution comes in
+/// L3.1 once magma::apply::destroy_plan is wired).
+pub struct EmbeddedMagmaDestroy;
+
+impl DestroyBackend for EmbeddedMagmaDestroy {
+    fn destroy(
+        &self,
+        source: &Source,
+        bindings: &IndexMap<String, String>,
+    ) -> Result<Vec<String>, String> {
+        let lava_source = source_to_lava_source(source);
+        let lava_bindings = bindings_to_artifact_bindings(bindings);
+        let plan = magma_lava::synthesize_source(&lava_source, &lava_bindings, None)
+            .map_err(|e| format!("synthesize for destroy: {e}"))?;
+        let resource_count = plan
+            .terraform_json
+            .get("resource")
+            .and_then(|r| r.as_object())
+            .map(|m| m.values().filter_map(|v| v.as_object()).map(|o| o.len()).sum::<usize>())
+            .unwrap_or(0);
+        Ok(vec![format!(
+            "synthesized destroy plan: {resource_count} resources in scope"
+        )])
     }
 }
 

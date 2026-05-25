@@ -133,7 +133,7 @@ pub async fn reconcile_one(
     .map_err(|e| ControllerError::Finalizer(e.to_string()))?;
 
     let status = LavaArchitectureStatusCR {
-        phase: Some(phase_str(outcome.phase).to_string()),
+        phase: Some(outcome.phase.as_str().to_string()),
         conditions: outcome.conditions.iter().map(ConditionCR::from).collect(),
         last_synthesized_hash: outcome
             .terraform_json
@@ -198,14 +198,11 @@ fn to_lib_spec(spec: &LavaArchitectureSpecCR) -> LavaArchitectureSpec {
     }
 }
 
-const fn phase_str(p: Phase) -> &'static str {
-    match p {
-        Phase::Pending => "Pending",
-        Phase::Synthesized => "Synthesized",
-        Phase::Planned => "Planned",
-        Phase::Applied => "Applied",
-        Phase::Failed => "Failed",
-    }
+/// Re-export of [`Phase::as_str`] kept here for symmetry with the
+/// pre-M2 controller API. New code should use `Phase::as_str` directly.
+#[must_use]
+pub const fn phase_str(p: Phase) -> &'static str {
+    p.as_str()
 }
 
 /// Short content-address of the rendered terraform.json — used as a
@@ -250,6 +247,18 @@ mod tests {
 
     #[test]
     fn phase_str_covers_every_variant() {
+        for p in [
+            Phase::Pending,
+            Phase::Synthesized,
+            Phase::Planned,
+            Phase::Applied,
+            Phase::Drifted,
+            Phase::Reconverging,
+            Phase::Finalizing,
+            Phase::Failed,
+        ] {
+            assert!(!phase_str(p).is_empty(), "{p:?}");
+        }
         assert_eq!(phase_str(Phase::Pending), "Pending");
         assert_eq!(phase_str(Phase::Synthesized), "Synthesized");
         assert_eq!(phase_str(Phase::Planned), "Planned");

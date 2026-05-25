@@ -6,7 +6,7 @@ license = "MIT"
 name = "lava-operator"
 readme = "README.md"
 repository = "https://github.com/pleme-io/lava-operator"
-version = "0.3.1"
+version = "0.4.0"
 
 [lib]
 name = "lava_operator"
@@ -45,6 +45,9 @@ serde_json = "1"
 serde_yaml = "0.9"
 indexmap = { version = "2", features = ["serde"] }
 thiserror = "2"
+chrono = { version = "0.4", features = ["serde"] }
+lava-outcome-chain = { git = "https://github.com/pleme-io/lava-outcome-chain", branch = "main" }
+lava-drift = { git = "https://github.com/pleme-io/lava-drift", branch = "main" }
 
 # Feature-gated kube-rs stack.
 kube = { version = "0.97", default-features = false, features = ["runtime", "derive", "client", "rustls-tls"], optional = true }
