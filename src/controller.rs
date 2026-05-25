@@ -439,7 +439,14 @@ pub async fn reconcile_one(
         last_synthesized_hash: None,
         last_applied_at: Some(report.ended_at.to_rfc3339()),
     };
-    let patch = json!({ "status": status });
+    // Server-side apply patches need apiVersion + kind to identify
+    // the GVK to the apiserver; without them the apiserver returns
+    // "invalid object type: /, Kind=" with code 400.
+    let patch = json!({
+        "apiVersion": "lava.pleme.io/v1alpha1",
+        "kind": "LavaArchitecture",
+        "status": status,
+    });
     api.patch_status(&name, &PatchParams::apply("lava-operator").force(), &Patch::Apply(patch))
         .await?;
 
