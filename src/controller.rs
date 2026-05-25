@@ -320,32 +320,35 @@ pub async fn reconcile_one(
         crate::Source::Git { path, .. } => path.clone(),
     };
 
-    // Synthesize-callback-backed PlannerBackend. Translates magma's
-    // typed Plan into typed DriftFindings the detector classifies.
-    struct CallbackPlanner {
-        synthesize: SynthesizeFn,
-        source: crate::Source,
-    }
-    impl PlannerBackend for CallbackPlanner {
-        fn plan(
-            &self,
-            _src: &str,
-            bindings: &indexmap::IndexMap<String, String>,
-        ) -> Result<Vec<lava_drift::DriftFinding>, PlannerError> {
-            // Call the synthesize callback to get terraform.json;
-            // any non-error result is treated as "no drift" today
-            // (the planner-side magma plan delta wires in via L3.1
-            // when magma::plan::plan is exposed to the bridge).
-            (self.synthesize)(&self.source, bindings, None)
-                .map(|_| Vec::new())
-                .map_err(PlannerError::Plan)
-        }
-    }
+    // PlannerBackend that runs magma's plan engine in-process when
+    // the `magma-bridge` feature is on, and falls back to a stub
+    // that calls the synthesize callback (which the operator gets
+    // even without magma-bridge) otherwise.
+    #[cfg(feature = "magma-bridge")]
+    let detector = DriftDetector::new(crate::magma_bridge::EmbeddedMagmaPlanner);
 
-    let detector = DriftDetector::new(CallbackPlanner {
-        synthesize: ctx.synthesize.clone(),
-        source: spec.source.clone(),
-    });
+    #[cfg(not(feature = "magma-bridge"))]
+    let detector = {
+        struct CallbackPlanner {
+            synthesize: SynthesizeFn,
+            source: crate::Source,
+        }
+        impl PlannerBackend for CallbackPlanner {
+            fn plan(
+                &self,
+                _src: &str,
+                bindings: &indexmap::IndexMap<String, String>,
+            ) -> Result<Vec<lava_drift::DriftFinding>, PlannerError> {
+                (self.synthesize)(&self.source, bindings, None)
+                    .map(|_| Vec::new())
+                    .map_err(PlannerError::Plan)
+            }
+        }
+        DriftDetector::new(CallbackPlanner {
+            synthesize: ctx.synthesize.clone(),
+            source: spec.source.clone(),
+        })
+    };
 
     let controller_ = LavaPromessaController {
         source_text,

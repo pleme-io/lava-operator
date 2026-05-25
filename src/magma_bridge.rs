@@ -46,6 +46,47 @@ fn source_to_lava_source(src: &Source) -> magma_lava::LavaSource {
     }
 }
 
+/// Embedded-magma [`lava_drift::PlannerBackend`] impl. Runs the full
+/// magma plan engine in-process and translates magma's typed
+/// `ResourceChange[]` into lava-drift's typed `DriftFinding[]`.
+///
+/// This is the production planner the controller wires in by
+/// default (when `magma-bridge` is on). The bridge fits the
+/// existing `lava_drift::PlannerBackend` trait, so the detector +
+/// classifier + Viggy engine work unchanged.
+pub struct EmbeddedMagmaPlanner;
+
+impl lava_drift::PlannerBackend for EmbeddedMagmaPlanner {
+    fn plan(
+        &self,
+        spec_source: &str,
+        bindings: &IndexMap<String, String>,
+    ) -> Result<Vec<lava_drift::DriftFinding>, lava_drift::PlannerError> {
+        let lava_source = magma_lava::LavaSource::Inline {
+            inline: spec_source.to_string(),
+        };
+        let lava_bindings = bindings_to_artifact_bindings(bindings);
+        let changes = magma_lava::plan_changes(&lava_source, &lava_bindings, None)
+            .map_err(|e| lava_drift::PlannerError::Plan(e.to_string()))?;
+        Ok(changes
+            .into_iter()
+            .map(|c| lava_drift::DriftFinding {
+                address: c.address,
+                attribute: c.attribute,
+                change: match c.kind.as_str() {
+                    "create" => lava_drift::ChangeKind::Create,
+                    "update" => lava_drift::ChangeKind::Update,
+                    "delete" => lava_drift::ChangeKind::Delete,
+                    "replace" => lava_drift::ChangeKind::Replace,
+                    _ => lava_drift::ChangeKind::NoOp,
+                },
+                observed: c.before,
+                declared: c.after,
+            })
+            .collect())
+    }
+}
+
 /// Embedded-magma [`DestroyBackend`] impl. The finalizer holds this
 /// and calls `destroy(source, bindings)` when a LavaArchitecture CR
 /// is removed. Re-synthesizes the .tlisp + runs magma-lava +

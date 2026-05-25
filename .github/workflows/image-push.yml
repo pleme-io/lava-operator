@@ -1,0 +1,38 @@
+name: image-push
+
+# On every merge to main, build the amd64 OCI image via Nix and push
+# to ghcr.io/pleme-io/lava-operator. The arm64 variant lands once we
+# have an arm64 runner in the fleet; for now the operator runs on
+# amd64 nodes (rio is x86_64).
+#
+# The image attribute name comes from the flake — substrate's
+# rust-tool-image-flake helper exposes `dockerImage-amd64` +
+# `dockerImage-arm64`. We push both architectures sequentially.
+#
+# Image tag is the short SHA + the package version. The HelmRelease
+# uses `version: <package>` so any tagged release is pulled.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Image tag (default: derived from Cargo.toml version)'
+        required: false
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  amd64:
+    uses: pleme-io/substrate/.github/workflows/image-push.yml@main
+    with:
+      imageAttr: dockerImage-amd64
+      imageName: pleme-io/lava-operator
+      tag: ${{ inputs.tag || 'latest' }}
+      additionalTags: 'latest'
+    secrets: inherit
