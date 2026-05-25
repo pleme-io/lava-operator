@@ -1078,7 +1078,7 @@ dependencies = [
 [[package]]
 name = "lava-architectures"
 version = "0.1.13"
-source = "git+https://github.com/pleme-io/lava-architectures?branch=main#e77eddca2a37deffe1723efe75e064c8a9768ff9"
+source = "git+https://github.com/pleme-io/lava-architectures?branch=main#e1def614f0f3de36e91dea66ba3d829bd16cecf0"
 dependencies = [
  "indexmap",
  "lava-arch",
@@ -1158,7 +1158,7 @@ dependencies = [
 
 [[package]]
 name = "lava-operator"
-version = "0.5.1"
+version = "0.5.2"
 dependencies = [
  "anyhow",
  "chrono",

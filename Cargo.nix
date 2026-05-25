@@ -3593,13 +3593,13 @@ rec {
       };
       "lava-anomaly" = rec {
         crateName = "lava-anomaly";
-        version = "0.1.0";
+        version = "0.1.1";
         edition = "2024";
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/lava-anomaly";
-          rev = "068fd3d9861f807b1a251c1ad37656f5469c807b";
-          sha256 = "00yasqyx41h4f0xrmrxq5k7nhz47ly0w14pmg3ic8w8j9j73hr97";
+          rev = "07d73ab2102781dbaeb132093db66690a97bf086";
+          sha256 = "04mldnzvkb4rr66zpry3qr5k2bnwsk8kpldfxwi83vw77lj942xy";
         };
         libName = "lava_anomaly";
         authors = [
@@ -3812,15 +3812,63 @@ rec {
         ];
 
       };
+      "lava-dependency" = rec {
+        crateName = "lava-dependency";
+        version = "0.1.1";
+        edition = "2024";
+        workspace_member = null;
+        src = pkgs.fetchgit {
+          url = "https://github.com/pleme-io/lava-dependency";
+          rev = "f681ce7d98e9edc96b4abd290b8ae999aea6b710";
+          sha256 = "0msqj6pqy9sm3z5miz4biswzd2j4caappxxmh41vya0dfciq6rvw";
+        };
+        libName = "lava_dependency";
+        authors = [
+          "pleme-io"
+        ];
+        dependencies = [
+          {
+            name = "indexmap";
+            packageId = "indexmap";
+            features = [ "serde" ];
+          }
+          {
+            name = "lava-anomaly";
+            packageId = "lava-anomaly";
+          }
+          {
+            name = "lava-drift";
+            packageId = "lava-drift";
+          }
+          {
+            name = "lava-outcome-chain";
+            packageId = "lava-outcome-chain";
+          }
+          {
+            name = "serde";
+            packageId = "serde";
+            features = [ "derive" ];
+          }
+          {
+            name = "serde_json";
+            packageId = "serde_json";
+          }
+          {
+            name = "thiserror";
+            packageId = "thiserror 2.0.18";
+          }
+        ];
+
+      };
       "lava-drift" = rec {
         crateName = "lava-drift";
-        version = "0.1.0";
+        version = "0.1.1";
         edition = "2024";
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/lava-drift";
-          rev = "43c158944bbd54dca35ac2307eb4f627176a2334";
-          sha256 = "17nnzld17pba0wnylnqj4gx6a16r059pnclmkl5q44arj549y0pf";
+          rev = "2ed1a582ebafa62030d3971301c30eceb4508a7a";
+          sha256 = "05r8k9sf6mipzj6rh93gmgyxbrkrc2kc5pmrfi2fg281sjzqakv7";
         };
         libName = "lava_drift";
         authors = [
@@ -3911,7 +3959,7 @@ rec {
       };
       "lava-operator" = rec {
         crateName = "lava-operator";
-        version = "0.5.1";
+        version = "0.5.2";
         edition = "2024";
         crateBin = [
           {
@@ -3964,12 +4012,20 @@ rec {
             packageId = "lava-anomaly";
           }
           {
+            name = "lava-dependency";
+            packageId = "lava-dependency";
+          }
+          {
             name = "lava-drift";
             packageId = "lava-drift";
           }
           {
             name = "lava-outcome-chain";
             packageId = "lava-outcome-chain";
+          }
+          {
+            name = "lava-viggy";
+            packageId = "lava-viggy";
           }
           {
             name = "magma-lava";
@@ -4183,6 +4239,59 @@ rec {
             name = "serde";
             packageId = "serde";
             features = [ "derive" ];
+          }
+          {
+            name = "thiserror";
+            packageId = "thiserror 2.0.18";
+          }
+        ];
+
+      };
+      "lava-viggy" = rec {
+        crateName = "lava-viggy";
+        version = "0.1.1";
+        edition = "2024";
+        workspace_member = null;
+        src = pkgs.fetchgit {
+          url = "https://github.com/pleme-io/lava-viggy";
+          rev = "19296daa46a762827a4fe100e26dafce6762002d";
+          sha256 = "1klgc9wfssynsyl7gr15cavx5zp7mdymm71ikvfy9m8dia0c9c7f";
+        };
+        libName = "lava_viggy";
+        authors = [
+          "pleme-io"
+        ];
+        dependencies = [
+          {
+            name = "chrono";
+            packageId = "chrono";
+            features = [ "serde" ];
+          }
+          {
+            name = "indexmap";
+            packageId = "indexmap";
+            features = [ "serde" ];
+          }
+          {
+            name = "lava-anomaly";
+            packageId = "lava-anomaly";
+          }
+          {
+            name = "lava-drift";
+            packageId = "lava-drift";
+          }
+          {
+            name = "lava-outcome-chain";
+            packageId = "lava-outcome-chain";
+          }
+          {
+            name = "serde";
+            packageId = "serde";
+            features = [ "derive" ];
+          }
+          {
+            name = "serde_json";
+            packageId = "serde_json";
           }
           {
             name = "thiserror";
