@@ -6,7 +6,7 @@ license = "MIT"
 name = "lava-operator"
 readme = "README.md"
 repository = "https://github.com/pleme-io/lava-operator"
-version = "0.1.1"
+version = "0.2.0"
 
 [lib]
 name = "lava_operator"
@@ -19,9 +19,35 @@ path = "src/main.rs"
 [lints.clippy]
 pedantic = "warn"
 
+[features]
+default = []
+# `controller` pulls in kube-rs + tokio + futures and exposes the
+# real reconcile-loop binary entry point. Library consumers that only
+# need the typed CRD + state machine can stay on the default feature set.
+controller = [
+  "dep:kube",
+  "dep:k8s-openapi",
+  "dep:tokio",
+  "dep:futures",
+  "dep:schemars",
+  "dep:tracing",
+  "dep:tracing-subscriber",
+  "dep:anyhow",
+]
+
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yaml = "0.9"
 indexmap = { version = "2", features = ["serde"] }
 thiserror = "2"
+
+# Feature-gated kube-rs stack.
+kube = { version = "0.97", default-features = false, features = ["runtime", "derive", "client", "rustls-tls"], optional = true }
+k8s-openapi = { version = "0.23", features = ["latest"], optional = true }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal"], optional = true }
+futures = { version = "0.3", optional = true }
+schemars = { version = "0.8", optional = true }
+tracing = { version = "0.1", optional = true }
+tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter"] }
+anyhow = { version = "1", optional = true }

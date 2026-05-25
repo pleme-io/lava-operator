@@ -46,6 +46,9 @@
 
 #![allow(clippy::module_name_repetitions)]
 
+#[cfg(feature = "controller")]
+pub mod controller;
+
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
