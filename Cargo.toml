@@ -1,0 +1,27 @@
+[package]
+authors = ["pleme-io"]
+description = "lava-operator — typed Kubernetes controller for the LavaArchitecture CRD. Operators submit a LavaArchitecture manifest naming a .tlisp source + bindings + gate; the controller renders via magma-lava + applies via the embedded magma path (or shells out to tofu/terraform). Status conditions track Synthesized / Planned / Applied / Failed phases. Pangea-operator analog for the lava + tatara-lisp stack."
+edition = "2024"
+license = "MIT"
+name = "lava-operator"
+readme = "README.md"
+repository = "https://github.com/pleme-io/lava-operator"
+version = "0.1.0"
+
+[lib]
+name = "lava_operator"
+path = "src/lib.rs"
+
+[[bin]]
+name = "lava-operator"
+path = "src/main.rs"
+
+[lints.clippy]
+pedantic = "warn"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+indexmap = { version = "2", features = ["serde"] }
+thiserror = "2"
