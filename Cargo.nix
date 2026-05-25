@@ -2999,9 +2999,233 @@ rec {
           "unstable-runtime" = [ "unstable-runtime-subscribe" "unstable-runtime-stream-control" "unstable-runtime-reconcile-on" ];
         };
       };
+      "lava-arch" = rec {
+        crateName = "lava-arch";
+        version = "0.1.2";
+        edition = "2024";
+        workspace_member = null;
+        src = pkgs.fetchgit {
+          url = "https://github.com/pleme-io/lava-arch";
+          rev = "81aceaba14463873bb7eddf901bc37911b527644";
+          sha256 = "1r6nm67gpmh1fvh0hkrsafyvvqiq80xivv688wsxsmbh65vl3rh6";
+        };
+        libName = "lava_arch";
+        authors = [
+          "pleme-io"
+        ];
+        dependencies = [
+          {
+            name = "indexmap";
+            packageId = "indexmap";
+            features = [ "serde" ];
+          }
+          {
+            name = "lava-core";
+            packageId = "lava-core";
+          }
+          {
+            name = "serde";
+            packageId = "serde";
+            features = [ "derive" ];
+          }
+          {
+            name = "serde_json";
+            packageId = "serde_json";
+          }
+          {
+            name = "thiserror";
+            packageId = "thiserror 2.0.18";
+          }
+        ];
+
+      };
+      "lava-architectures" = rec {
+        crateName = "lava-architectures";
+        version = "0.1.12";
+        edition = "2024";
+        workspace_member = null;
+        src = pkgs.fetchgit {
+          url = "https://github.com/pleme-io/lava-architectures";
+          rev = "a8c5e849b7e861fbcd31683ea4c8550f57170323";
+          sha256 = "0vyfyi2w98p5z8xz7i780aq3f87wi2nbsq6m2q49nd76s9nir2zm";
+        };
+        libName = "lava_architectures";
+        authors = [
+          "pleme-io"
+        ];
+        dependencies = [
+          {
+            name = "indexmap";
+            packageId = "indexmap";
+            features = [ "serde" ];
+          }
+          {
+            name = "lava-arch";
+            packageId = "lava-arch";
+          }
+          {
+            name = "lava-contracts";
+            packageId = "lava-contracts";
+          }
+          {
+            name = "lava-core";
+            packageId = "lava-core";
+          }
+          {
+            name = "lava-eval";
+            packageId = "lava-eval";
+          }
+          {
+            name = "lava-schema";
+            packageId = "lava-schema";
+          }
+          {
+            name = "lava-types";
+            packageId = "lava-types";
+          }
+          {
+            name = "serde";
+            packageId = "serde";
+            features = [ "derive" ];
+          }
+          {
+            name = "serde_json";
+            packageId = "serde_json";
+          }
+          {
+            name = "thiserror";
+            packageId = "thiserror 2.0.18";
+          }
+        ];
+
+      };
+      "lava-contracts" = rec {
+        crateName = "lava-contracts";
+        version = "0.1.1";
+        edition = "2024";
+        workspace_member = null;
+        src = pkgs.fetchgit {
+          url = "https://github.com/pleme-io/lava-contracts";
+          rev = "13ec7e5a1c133c08567aab029a4f06d03dfc8ebb";
+          sha256 = "0qxmgskynkkrnlmbhn76w9p4lsb0l0ickgyxiq5vm09xac9j8nzr";
+        };
+        libName = "lava_contracts";
+        authors = [
+          "pleme-io"
+        ];
+        dependencies = [
+          {
+            name = "indexmap";
+            packageId = "indexmap";
+            features = [ "serde" ];
+          }
+          {
+            name = "lava-core";
+            packageId = "lava-core";
+          }
+          {
+            name = "serde";
+            packageId = "serde";
+            features = [ "derive" ];
+          }
+        ];
+
+      };
+      "lava-core" = rec {
+        crateName = "lava-core";
+        version = "0.1.5";
+        edition = "2024";
+        workspace_member = null;
+        src = pkgs.fetchgit {
+          url = "https://github.com/pleme-io/lava-core";
+          rev = "0e436b0daa4de3d651d9f076339048bc4b9963c6";
+          sha256 = "0dyvdrfsy9wq2mzn6w09g0sp1l787rwn6rvhgkhawkw92qvbl42p";
+        };
+        libName = "lava_core";
+        authors = [
+          "pleme-io"
+        ];
+        dependencies = [
+          {
+            name = "indexmap";
+            packageId = "indexmap";
+            features = [ "serde" ];
+          }
+          {
+            name = "serde";
+            packageId = "serde";
+            features = [ "derive" ];
+          }
+          {
+            name = "serde_json";
+            packageId = "serde_json";
+          }
+          {
+            name = "serde_yaml";
+            packageId = "serde_yaml";
+          }
+          {
+            name = "thiserror";
+            packageId = "thiserror 2.0.18";
+          }
+        ];
+
+      };
+      "lava-eval" = rec {
+        crateName = "lava-eval";
+        version = "0.1.7";
+        edition = "2024";
+        workspace_member = null;
+        src = pkgs.fetchgit {
+          url = "https://github.com/pleme-io/lava-eval";
+          rev = "6427102543b0a36a1923a9c9e077c47243ae1c84";
+          sha256 = "027w31sdc5slbixp500win1i84kp3xdxva8rsy8dsdxp5cxnhn6g";
+        };
+        libName = "lava_eval";
+        authors = [
+          "pleme-io"
+        ];
+        dependencies = [
+          {
+            name = "indexmap";
+            packageId = "indexmap";
+            features = [ "serde" ];
+          }
+          {
+            name = "lava-arch";
+            packageId = "lava-arch";
+          }
+          {
+            name = "lava-core";
+            packageId = "lava-core";
+          }
+          {
+            name = "lava-schema";
+            packageId = "lava-schema";
+          }
+          {
+            name = "lava-types";
+            packageId = "lava-types";
+          }
+          {
+            name = "serde";
+            packageId = "serde";
+            features = [ "derive" ];
+          }
+          {
+            name = "serde_json";
+            packageId = "serde_json";
+          }
+          {
+            name = "thiserror";
+            packageId = "thiserror 2.0.18";
+          }
+        ];
+
+      };
       "lava-operator" = rec {
         crateName = "lava-operator";
-        version = "0.2.1";
+        version = "0.3.1";
         edition = "2024";
         crateBin = [
           {
@@ -3045,6 +3269,11 @@ rec {
             features = [ "runtime" "derive" "client" "rustls-tls" ];
           }
           {
+            name = "magma-lava";
+            packageId = "magma-lava";
+            optional = true;
+          }
+          {
             name = "schemars";
             packageId = "schemars";
             optional = true;
@@ -3086,8 +3315,120 @@ rec {
         ];
         features = {
           "controller" = [ "dep:kube" "dep:k8s-openapi" "dep:tokio" "dep:futures" "dep:schemars" "dep:tracing" "dep:tracing-subscriber" "dep:anyhow" ];
+          "magma-bridge" = [ "dep:magma-lava" ];
         };
-        resolvedDefaultFeatures = [ "controller" "default" ];
+        resolvedDefaultFeatures = [ "controller" "default" "magma-bridge" ];
+      };
+      "lava-runtime" = rec {
+        crateName = "lava-runtime";
+        version = "0.1.3";
+        edition = "2024";
+        workspace_member = null;
+        src = pkgs.fetchgit {
+          url = "https://github.com/pleme-io/lava-runtime";
+          rev = "a36f6af2c4609e702d6ffb6f94bcd184f51e210f";
+          sha256 = "16l8w8s6jgfnsp9q6f8ym43hn1rnk2mjrp3x0sp23d96ghg5032y";
+        };
+        libName = "lava_runtime";
+        authors = [
+          "pleme-io"
+        ];
+        dependencies = [
+          {
+            name = "indexmap";
+            packageId = "indexmap";
+            features = [ "serde" ];
+          }
+          {
+            name = "lava-core";
+            packageId = "lava-core";
+          }
+          {
+            name = "lava-eval";
+            packageId = "lava-eval";
+          }
+          {
+            name = "lava-schema";
+            packageId = "lava-schema";
+          }
+          {
+            name = "serde";
+            packageId = "serde";
+            features = [ "derive" ];
+          }
+          {
+            name = "serde_json";
+            packageId = "serde_json";
+          }
+          {
+            name = "thiserror";
+            packageId = "thiserror 2.0.18";
+          }
+        ];
+
+      };
+      "lava-schema" = rec {
+        crateName = "lava-schema";
+        version = "0.1.2";
+        edition = "2024";
+        workspace_member = null;
+        src = pkgs.fetchgit {
+          url = "https://github.com/pleme-io/lava-schema";
+          rev = "417f21ba25c97061ba3ce18879a803fd595f33d1";
+          sha256 = "1sfbfbcv8p71qscgsv0ix5yzkjzhsh835i8wjxcl3bnv4ykfc2a2";
+        };
+        libName = "lava_schema";
+        authors = [
+          "pleme-io"
+        ];
+        dependencies = [
+          {
+            name = "indexmap";
+            packageId = "indexmap";
+            features = [ "serde" ];
+          }
+          {
+            name = "lava-types";
+            packageId = "lava-types";
+          }
+          {
+            name = "serde";
+            packageId = "serde";
+            features = [ "derive" ];
+          }
+          {
+            name = "thiserror";
+            packageId = "thiserror 2.0.18";
+          }
+        ];
+
+      };
+      "lava-types" = rec {
+        crateName = "lava-types";
+        version = "0.1.1";
+        edition = "2024";
+        workspace_member = null;
+        src = pkgs.fetchgit {
+          url = "https://github.com/pleme-io/lava-types";
+          rev = "55484f2312008614740bf23c143a67d70edd8e6c";
+          sha256 = "0rzi3c504jvsk8j6gnqssbdac9j6gji48sfwi8ghpjydyh9g19w4";
+        };
+        libName = "lava_types";
+        authors = [
+          "pleme-io"
+        ];
+        dependencies = [
+          {
+            name = "serde";
+            packageId = "serde";
+            features = [ "derive" ];
+          }
+          {
+            name = "thiserror";
+            packageId = "thiserror 2.0.18";
+          }
+        ];
+
       };
       "lazy_static" = rec {
         crateName = "lazy_static";
@@ -3163,6 +3504,62 @@ rec {
           "value-bag" = [ "dep:value-bag" ];
         };
         resolvedDefaultFeatures = [ "std" ];
+      };
+      "magma-lava" = rec {
+        crateName = "magma-lava";
+        version = "0.2.0";
+        edition = "2024";
+        workspace_member = null;
+        src = pkgs.fetchgit {
+          url = "https://github.com/pleme-io/magma-lava";
+          rev = "0fa8f525fe730eae8a3b1d197347dce17df2814f";
+          sha256 = "1ck791vf0xc147zxw27qidja4rp9p7sz3frzfkzmbx2kbfd81g84";
+        };
+        libName = "magma_lava";
+        authors = [
+          "pleme-io"
+        ];
+        dependencies = [
+          {
+            name = "indexmap";
+            packageId = "indexmap";
+            features = [ "serde" ];
+          }
+          {
+            name = "lava-architectures";
+            packageId = "lava-architectures";
+          }
+          {
+            name = "lava-core";
+            packageId = "lava-core";
+          }
+          {
+            name = "lava-eval";
+            packageId = "lava-eval";
+          }
+          {
+            name = "lava-runtime";
+            packageId = "lava-runtime";
+          }
+          {
+            name = "lava-schema";
+            packageId = "lava-schema";
+          }
+          {
+            name = "serde";
+            packageId = "serde";
+            features = [ "derive" ];
+          }
+          {
+            name = "serde_json";
+            packageId = "serde_json";
+          }
+          {
+            name = "thiserror";
+            packageId = "thiserror 2.0.18";
+          }
+        ];
+
       };
       "matchers" = rec {
         crateName = "matchers";
