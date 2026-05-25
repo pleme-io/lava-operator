@@ -1183,7 +1183,7 @@ dependencies = [
 
 [[package]]
 name = "lava-operator"
-version = "0.5.6"
+version = "0.5.7"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1319,8 +1319,8 @@ dependencies = [
 
 [[package]]
 name = "magma-lava"
-version = "0.2.2"
-source = "git+https://github.com/pleme-io/magma-lava?branch=main#5431c56811342c348ad3279270742c68b0c08b8e"
+version = "0.2.3"
+source = "git+https://github.com/pleme-io/magma-lava?branch=main#5dd51a2e42a0cf9ddc317cac0476024d7801bca7"
 dependencies = [
  "indexmap",
  "lava-architectures",
