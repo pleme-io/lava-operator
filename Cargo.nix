@@ -4543,7 +4543,7 @@ rec {
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/magma-lava";
           rev = "5431c56811342c348ad3279270742c68b0c08b8e";
-          sha256 = "0yl9wn414kzhfvrmvzr9mib743n138zhcnw3fihbi8hhb6426q8h";
+          sha256 = "0ikkw3zkpvg1a94j2lgrf907v4hidcyjw0xm82ryvrcdiyhmi6lc";
         };
         libName = "magma_lava";
         authors = [
