@@ -435,9 +435,9 @@ rec {
       };
       "bitflags" = rec {
         crateName = "bitflags";
-        version = "2.11.1";
+        version = "2.12.1";
         edition = "2021";
-        sha256 = "1cvqijg3rvwgis20a66vfdxannjsxfy5fgjqkaq3l13gyfcj4lf4";
+        sha256 = "02phhjm7w380zdh8928zf13cfi1bw2qz2ay36ml2jmwmmv8cxmw4";
         authors = [
           "The Rust Project Developers"
         ];
@@ -550,9 +550,9 @@ rec {
       };
       "cc" = rec {
         crateName = "cc";
-        version = "1.2.62";
+        version = "1.2.63";
         edition = "2018";
-        sha256 = "164zsxcy2zzvbbh1qpbrsssz8kmria41j4agih47sal3y1cyip51";
+        sha256 = "0zy2bqc4nvj6bv2cipx4h4bn65wf1zqf1fw1hsh64mmvg1hh2vjm";
         authors = [
           "Alex Crichton <alex@alexcrichton.com>"
         ];
@@ -1833,13 +1833,13 @@ rec {
       };
       "gen-macros" = rec {
         crateName = "gen-macros";
-        version = "0.1.4";
+        version = "0.1.5";
         edition = "2024";
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/gen";
-          rev = "2684ab51c68dad10b4bc59c685c123925990bc2a";
-          sha256 = "1kgs8vrwh8hk9vfj4y1wlmhnkw1xkpcfn2znzkhgmjayz7mrwsbc";
+          rev = "f18830b4ef710ebe44c6d92abf0e020fd6943414";
+          sha256 = "0gdf44lwk58r6cx1qdgik6qannzwarj029khfs022fz6kwlvx279";
         };
         procMacro = true;
         libName = "gen_macros";
@@ -1865,13 +1865,13 @@ rec {
       };
       "gen-platform" = rec {
         crateName = "gen-platform";
-        version = "0.1.4";
+        version = "0.1.5";
         edition = "2024";
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/gen";
-          rev = "2684ab51c68dad10b4bc59c685c123925990bc2a";
-          sha256 = "1kgs8vrwh8hk9vfj4y1wlmhnkw1xkpcfn2znzkhgmjayz7mrwsbc";
+          rev = "f18830b4ef710ebe44c6d92abf0e020fd6943414";
+          sha256 = "0gdf44lwk58r6cx1qdgik6qannzwarj029khfs022fz6kwlvx279";
         };
         libName = "gen_platform";
         authors = [
@@ -1908,13 +1908,13 @@ rec {
       };
       "gen-types" = rec {
         crateName = "gen-types";
-        version = "0.1.4";
+        version = "0.1.5";
         edition = "2024";
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/gen";
-          rev = "2684ab51c68dad10b4bc59c685c123925990bc2a";
-          sha256 = "1kgs8vrwh8hk9vfj4y1wlmhnkw1xkpcfn2znzkhgmjayz7mrwsbc";
+          rev = "f18830b4ef710ebe44c6d92abf0e020fd6943414";
+          sha256 = "0gdf44lwk58r6cx1qdgik6qannzwarj029khfs022fz6kwlvx279";
         };
         libName = "gen_types";
         authors = [
@@ -2342,9 +2342,9 @@ rec {
       };
       "http" = rec {
         crateName = "http";
-        version = "1.4.0";
+        version = "1.4.1";
         edition = "2021";
-        sha256 = "06iind4cwsj1d6q8c2xgq8i2wka4ps74kmws24gsi1bzdlw2mfp3";
+        sha256 = "1l7k2ia57z3q7q3ka497krzps795kd3fymm2k12lr623y4nldrwb";
         authors = [
           "Alex Crichton <alex@alexcrichton.com>"
           "Carl Lerche <me@carllerche.com>"
@@ -2453,9 +2453,9 @@ rec {
       };
       "hyper" = rec {
         crateName = "hyper";
-        version = "1.9.0";
+        version = "1.10.1";
         edition = "2021";
-        sha256 = "1jmwbwqcaficskg76kq402gbymbnh2z4v99xwq3l5aa6n8bg16b2";
+        sha256 = "1624nwrh1ci34psqcl3q8q266kha8kd6fmqjj14qck49l59iqa2m";
         authors = [
           "Sean McArthur <sean@seanmonstar.com>"
         ];
@@ -2678,7 +2678,7 @@ rec {
           }
           {
             name = "rustls-native-certs";
-            packageId = "rustls-native-certs 0.8.3";
+            packageId = "rustls-native-certs 0.8.4";
             optional = true;
           }
           {
@@ -3359,7 +3359,7 @@ rec {
           "webpki-roots" = [ "kube-client/webpki-roots" "client" ];
           "ws" = [ "kube-client/ws" "kube-core/ws" ];
         };
-        resolvedDefaultFeatures = [ "client" "config" "derive" "kube-client" "kube-derive" "kube-runtime" "runtime" "rustls-tls" ];
+        resolvedDefaultFeatures = [ "client" "config" "derive" "kube-client" "kube-derive" "kube-runtime" "runtime" "rustls-tls" "unstable-runtime" ];
       };
       "kube-client" = rec {
         crateName = "kube-client";
@@ -3844,6 +3844,7 @@ rec {
         features = {
           "unstable-runtime" = [ "unstable-runtime-subscribe" "unstable-runtime-stream-control" "unstable-runtime-reconcile-on" ];
         };
+        resolvedDefaultFeatures = [ "unstable-runtime" "unstable-runtime-reconcile-on" "unstable-runtime-stream-control" "unstable-runtime-subscribe" ];
       };
       "lava-anomaly" = rec {
         crateName = "lava-anomaly";
@@ -3936,13 +3937,13 @@ rec {
       };
       "lava-architectures" = rec {
         crateName = "lava-architectures";
-        version = "0.1.13";
+        version = "0.1.14";
         edition = "2024";
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/lava-architectures";
-          rev = "6acb442003ffd5d7e18b8fa6b70d8dcdd2cf571b";
-          sha256 = "0dsv1b7awmdxs33xhy4jflvcrx8i7qfrwx3hphc35w5rnjv1421b";
+          rev = "395702f55d7fc7207b9e6b0b6f07dfea33781478";
+          sha256 = "0y0m0r24y0c4jyzgdi3ndsc9bqbjm4a5nwql6gxcpyazlspc0lx7";
         };
         libName = "lava_architectures";
         authors = [
@@ -4068,13 +4069,13 @@ rec {
       };
       "lava-dependency" = rec {
         crateName = "lava-dependency";
-        version = "0.1.1";
+        version = "0.1.2";
         edition = "2024";
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/lava-dependency";
-          rev = "a5f644dfde6560a24687c6bdbfc6c2c3464c2f5d";
-          sha256 = "0msqj6pqy9sm3z5miz4biswzd2j4caappxxmh41vya0dfciq6rvw";
+          rev = "8ddacb10e9ea87b37842e1b6983240f965ca6514";
+          sha256 = "0q3y9raskl9xab68w33x7z4d9bn7gr3pnznz6zv7fdz8db5hgbr9";
         };
         libName = "lava_dependency";
         authors = [
@@ -4161,13 +4162,13 @@ rec {
       };
       "lava-eval" = rec {
         crateName = "lava-eval";
-        version = "0.1.7";
+        version = "0.1.8";
         edition = "2024";
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/lava-eval";
-          rev = "82f957de4004c8840e924424a3edbfb81d176e88";
-          sha256 = "04nhfpn1y59bsyq6741khcyl7y011gslg1hh5fv1gs5p9pl2arza";
+          rev = "fc42426088e84f151cab10534ff0f3095982c4c2";
+          sha256 = "1652nr4fhb479gnrd1rwxby5n2i0iqlpmqxh23xfnccm1id1wcy2";
         };
         libName = "lava_eval";
         authors = [
@@ -4259,7 +4260,7 @@ rec {
             packageId = "kube";
             optional = true;
             usesDefaultFeatures = false;
-            features = [ "runtime" "derive" "client" "rustls-tls" ];
+            features = [ "runtime" "derive" "client" "rustls-tls" "unstable-runtime" ];
           }
           {
             name = "lava-anomaly";
@@ -4505,13 +4506,13 @@ rec {
       };
       "lava-viggy" = rec {
         crateName = "lava-viggy";
-        version = "0.1.1";
+        version = "0.1.2";
         edition = "2024";
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/lava-viggy";
-          rev = "b99cde5a080d358185f0e6715b2f4cdbe1cad243";
-          sha256 = "1klgc9wfssynsyl7gr15cavx5zp7mdymm71ikvfy9m8dia0c9c7f";
+          rev = "f224dc266b28bf7d1b632dde52c0d593ed9c8a31";
+          sha256 = "17cbj4xa23n2xsh7gm985f1limg2k46zdbxirxh0fygg18f1l5l4";
         };
         libName = "lava_viggy";
         authors = [
@@ -4621,9 +4622,9 @@ rec {
       };
       "log" = rec {
         crateName = "log";
-        version = "0.4.30";
+        version = "0.4.31";
         edition = "2021";
-        sha256 = "1rd6sw3gv9hb93464w7x3sip99zf8sjagm662r2ckg14b1lcavk1";
+        sha256 = "0kq2fh6q2bjkrm8m6hj8kb7gxfd7cr7qbcpxd1lc1xq5rns30fqi";
         authors = [
           "The Rust Project Developers"
         ];
@@ -4689,8 +4690,8 @@ rec {
         workspace_member = null;
         src = pkgs.fetchgit {
           url = "https://github.com/pleme-io/magma-lava";
-          rev = "0741c03aeea6884f7bbbd66b0d1edefc38ed905e";
-          sha256 = "15jx9mbm774w5akyxk3ypmr0a7m8mmz9crniiq8am3jjjqidj265";
+          rev = "97054986da0788b0d030d8beb0d3526733088949";
+          sha256 = "1mxb6a66a9pj4hca0wy1rcp47vb4cc9if2ha440yaz0pn1jmyhv2";
         };
         libName = "magma_lava";
         authors = [
@@ -4818,9 +4819,9 @@ rec {
       };
       "memchr" = rec {
         crateName = "memchr";
-        version = "2.8.0";
+        version = "2.8.1";
         edition = "2021";
-        sha256 = "0y9zzxcqxvdqg6wyag7vc3h0blhdn7hkq164bxyx2vph8zs5ijpq";
+        sha256 = "1n448jx01h5z2xknj6x2dhxgr8s8fb717cf6vfqj5lmhkpj7m53b";
         authors = [
           "Andrew Gallant <jamslam@gmail.com>"
           "bluss"
@@ -4847,9 +4848,9 @@ rec {
       };
       "mio" = rec {
         crateName = "mio";
-        version = "1.2.0";
+        version = "1.2.1";
         edition = "2021";
-        sha256 = "1hanrh4fwsfkdqdaqfidz48zz1wdix23zwn3r2x78am0garfbdsh";
+        sha256 = "1nkggmrlnjs93w8rja4lvjj4aml1xqahgimv1h0p7d373kvhmg82";
         authors = [
           "Carl Lerche <me@carllerche.com>"
           "Thomas de Zeeuw <thomasdezeeuw@gmail.com>"
@@ -5882,11 +5883,11 @@ rec {
         ];
 
       };
-      "rustls-native-certs 0.8.3" = rec {
+      "rustls-native-certs 0.8.4" = rec {
         crateName = "rustls-native-certs";
-        version = "0.8.3";
+        version = "0.8.4";
         edition = "2021";
-        sha256 = "0qrajg2n90bcr3bcq6j95gjm7a9lirfkkdmjj32419dyyzan0931";
+        sha256 = "0kgazl8zc1sv63qg179bz96ilzh56lzfa5k92ji7d265f4kibdfs";
         libName = "rustls_native_certs";
         dependencies = [
           {
@@ -6616,9 +6617,9 @@ rec {
       };
       "shlex" = rec {
         crateName = "shlex";
-        version = "1.3.0";
-        edition = "2015";
-        sha256 = "0r1y6bv26c1scpxvhg2cabimrmwgbp4p3wy6syj9n0c4s3q2znhg";
+        version = "2.0.1";
+        edition = "2018";
+        sha256 = "1fjsll1cd7d2bcpdij9kd6w62rpbc7qqzvydvs021vsmr1cxvypq";
         authors = [
           "comex <comexk@gmail.com>"
           "Fenhl <fenhl@fenhl.net>"
@@ -6714,9 +6715,9 @@ rec {
       };
       "socket2" = rec {
         crateName = "socket2";
-        version = "0.6.3";
+        version = "0.6.4";
         edition = "2021";
-        sha256 = "0gkjjcyn69hqhhlh5kl8byk5m0d7hyrp2aqwzbs3d33q208nwxis";
+        sha256 = "0ldyp5rhba15spwxj1n94xh7sjks1398c3vwpwkxkd1087nwzlaj";
         authors = [
           "Alex Crichton <alex@alexcrichton.com>"
           "Thomas de Zeeuw <thomasdezeeuw@gmail.com>"
@@ -7682,13 +7683,9 @@ rec {
       };
       "typenum" = rec {
         crateName = "typenum";
-        version = "1.20.0";
+        version = "1.20.1";
         edition = "2018";
-        sha256 = "1pj35y6q11d3y55gdl6g1h2dfhmybjming0jdi9bh0bpnqm11kj0";
-        authors = [
-          "Paho Lurie-Gregg <paho@paholg.com>"
-          "Andre Bogus <bogusandre@gmail.com>"
-        ];
+        sha256 = "086s9ly0906kw5yw41249fba97w5zfxf03pyfwdkffvcprqfixdn";
         features = {
           "scale-info" = [ "dep:scale-info" ];
           "scale_info" = [ "scale-info/derive" ];
@@ -7758,9 +7755,9 @@ rec {
       };
       "uuid" = rec {
         crateName = "uuid";
-        version = "1.23.1";
+        version = "1.23.2";
         edition = "2021";
-        sha256 = "0xlwg23rmsfl3gx98qsyzpl24pf4bs9wi3mqx5c6i319hyb4mmyx";
+        sha256 = "1xy942s4z0bi8p3441wvd4ry3hx6ry1c7s6fgrr38462xqybhn6j";
         authors = [
           "Ashley Mannix<ashleymannix@live.com.au>"
           "Dylan DPC<dylan.dpc@gmail.com>"
@@ -9280,9 +9277,9 @@ rec {
       };
       "zerocopy" = rec {
         crateName = "zerocopy";
-        version = "0.8.48";
+        version = "0.8.50";
         edition = "2021";
-        sha256 = "1sb8plax8jbrsng1jdval7bdhk7hhrx40dz3hwh074k6knzkgm7f";
+        sha256 = "1laahnfxs4qyfb1fdf5nbb2qfshi72b1hbi0ffp2zy2m1r7ms1iv";
         authors = [
           "Joshua Liebow-Feeser <joshlf@google.com>"
           "Jack Wrenn <jswrenn@amazon.com>"
@@ -9316,9 +9313,9 @@ rec {
       };
       "zerocopy-derive" = rec {
         crateName = "zerocopy-derive";
-        version = "0.8.48";
+        version = "0.8.50";
         edition = "2021";
-        sha256 = "1m5s0g92cxggqc74j83k1priz24k3z93sj5gadppd20p9c4cvqvh";
+        sha256 = "0fdnr9qslx1hbn2i9rsvy9s95mychfy2vj90ajsjm2basccinqqb";
         procMacro = true;
         libName = "zerocopy_derive";
         authors = [
