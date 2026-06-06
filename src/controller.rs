@@ -13,7 +13,10 @@ use std::time::Duration;
 use futures::StreamExt;
 use kube::{
     api::{Api, Patch, PatchParams},
-    runtime::{controller::Action, watcher::Config, Controller},
+    runtime::{
+        controller::Action, predicates, reflector, watcher, watcher::Config, Controller,
+        WatchStreamExt,
+    },
     Client, CustomResource, ResourceExt,
 };
 
@@ -475,7 +478,22 @@ pub async fn run(synthesize: SynthesizeFn) -> Result<(), kube::Error> {
     let client = Client::try_default().await?;
     let api: Api<LavaArchitecture> = Api::all(client.clone());
     let ctx = Arc::new(Context::with_in_memory_chain(client, synthesize));
-    Controller::new(api, Config::default())
+    // Generation-filtered watch stream. Status PATCHes don't bump
+    // metadata.generation (apiserver-guaranteed), so the operator's OWN
+    // status writes are dropped before they reach the reconciler — no
+    // self-trigger. The only watch-driven work is a real spec mutation; the
+    // periodic drift scan is driven purely by Action::requeue(scanInterval)
+    // in reconcile_one. This is the fleet generation-filter pattern (cf.
+    // pangea-operator src/controller/generation_filter.rs) and is the fix for
+    // the hot-reconcile loop that spun ~42 reconciles/sec and ran ZERO actual
+    // 7-beat ticks on rio (2026-06-05). Requires kube feature unstable-runtime.
+    let (reader, writer) = reflector::store();
+    let stream = watcher(api, Config::default())
+        .default_backoff()
+        .reflect(writer)
+        .applied_objects()
+        .predicate_filter(predicates::generation);
+    Controller::for_stream(stream, reader)
         .run(reconcile_one, error_policy, ctx)
         .for_each(|res| async move {
             match res {

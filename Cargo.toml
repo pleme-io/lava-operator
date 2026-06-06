@@ -56,7 +56,7 @@ lava-viggy = { git = "https://github.com/pleme-io/lava-viggy", branch = "main" }
 lava-dependency = { git = "https://github.com/pleme-io/lava-dependency", branch = "main" }
 
 # Feature-gated kube-rs stack.
-kube = { version = "0.97", default-features = false, features = ["runtime", "derive", "client", "rustls-tls"], optional = true }
+kube = { version = "0.97", default-features = false, features = ["runtime", "derive", "client", "rustls-tls", "unstable-runtime"], optional = true }
 k8s-openapi = { version = "0.23", features = ["latest"], optional = true }
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal"], optional = true }
 futures = { version = "0.3", optional = true }
