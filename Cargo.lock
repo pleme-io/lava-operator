@@ -1122,8 +1122,9 @@ dependencies = [
 
 [[package]]
 name = "lava-anomaly"
-version = "0.1.3"
-source = "git+https://github.com/pleme-io/lava-anomaly?branch=main#535a995c7655630b7fb918d6cda209c49c85dc7e"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "05f628ed7a2a1a1b3c28974b40e31aab66df1cdeece5d7db35201264fa3de605"
 dependencies = [
  "chrono",
  "indexmap",
@@ -1187,8 +1188,9 @@ dependencies = [
 
 [[package]]
 name = "lava-dependency"
-version = "0.1.4"
-source = "git+https://github.com/pleme-io/lava-dependency?branch=main#e7ce81b4e333f0c60535c88d2a349f50919ae751"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e3293086c840b4c4094633453d46a9e32e45371d84acc03867246f3e5db04786"
 dependencies = [
  "indexmap",
  "lava-anomaly",
@@ -1201,8 +1203,9 @@ dependencies = [
 
 [[package]]
 name = "lava-drift"
-version = "0.1.2"
-source = "git+https://github.com/pleme-io/lava-drift?branch=main#37f3943167e6523662e70e758aeeddbbc4a89607"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "db6e28757e5e9510f86f5b6b5b9619b8a56c2668b3f9f5794ea8e5eaf08d522f"
 dependencies = [
  "chrono",
  "indexmap",
@@ -1256,7 +1259,8 @@ dependencies = [
 [[package]]
 name = "lava-outcome-chain"
 version = "0.1.2"
-source = "git+https://github.com/pleme-io/lava-outcome-chain?branch=main#193b8e7f94a445c0653bce5e8f48b7477d3baeeb"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "db333d5fbc3ad088d83762b1c487aa5cf9e7ec8cbc9c3a9c0240297afcb1536d"
 dependencies = [
  "blake3",
  "chrono",
@@ -1305,8 +1309,9 @@ dependencies = [
 
 [[package]]
 name = "lava-viggy"
-version = "0.1.3"
-source = "git+https://github.com/pleme-io/lava-viggy?branch=main#d566be918bfbcfb534deaa5d5d4e4c4e6b53f8b2"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4433cc5856246ac3cc8741473cbe31d6aea71e334200ae0475bdf6e4ff9d5135"
 dependencies = [
  "chrono",
  "indexmap",
