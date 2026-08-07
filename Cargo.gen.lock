@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
-  "cargo_lock_sha256": "6e2af0302be267b512f009cf896758cf9a5addc6ccb46b5b1fccf1782283fbc8",
+  "cargo_lock_sha256": "f7400d0e74b4c3d63518955489548e477c406e408bbfd568b423856dac1c5da1",
   "manifest_sha256": {
-    "Cargo.toml": "b792cd0ae6cf40410ccfbcad3fd5a7123ecc59613badcae7c95588d1d9ad2bb4"
+    "Cargo.toml": "92fdbc82738604231265bb0151726c838af16feadb83d96dceb6ba2e4fd499b2"
   },
   "target_resolves": {
     "base": {
@@ -4380,7 +4380,7 @@
         "build_dependencies": [],
         "features": []
       },
-      "lava-operator-0.5.10": {
+      "lava-operator-0.5.11": {
         "runtime_dependencies": [
           {
             "name": "anyhow",
@@ -10252,7 +10252,7 @@
     "lava-eval-0.1.10": {
       "edition": "2024"
     },
-    "lava-operator-0.5.10": {
+    "lava-operator-0.5.11": {
       "edition": "2024",
       "lib_target": {
         "name": "lava_operator",
