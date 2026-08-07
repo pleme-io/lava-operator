@@ -1321,8 +1321,9 @@ checksum = "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad"
 
 [[package]]
 name = "magma-config"
-version = "0.1.18"
-source = "git+https://github.com/pleme-io/magma?branch=main#dd6447bbaa13432b4d56e31a3699c6d9d27c6a4c"
+version = "0.1.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0be05859d5b67d1b276ff0b3df56f046ea90362cc3f3ca257b73680bf14a5a2c"
 dependencies = [
  "magma-types",
  "serde",
@@ -1333,8 +1334,9 @@ dependencies = [
 
 [[package]]
 name = "magma-lava"
-version = "0.2.6"
-source = "git+https://github.com/pleme-io/magma-lava?branch=main#ed1cd149cb205507dbbf35c53a03ebb9a58f37c8"
+version = "0.2.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6733760326d8844e4fb930119bfc6f75ab0da7d547f0e6b74a0337d89c69d2e8"
 dependencies = [
  "indexmap",
  "lava-architectures",
@@ -1350,8 +1352,9 @@ dependencies = [
 
 [[package]]
 name = "magma-types"
-version = "0.1.18"
-source = "git+https://github.com/pleme-io/magma?branch=main#dd6447bbaa13432b4d56e31a3699c6d9d27c6a4c"
+version = "0.1.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c858b841f119fcd5cd51b199c79d7bc657b9ac32fbeabd0d5e952b2db51ca14f"
 dependencies = [
  "chrono",
  "gen-platform",

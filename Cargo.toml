@@ -66,4 +66,4 @@ tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter
 anyhow = { version = "1", optional = true }
 
 # magma bridge — opt-in only via --features magma-bridge.
-magma-lava = { git = "https://github.com/pleme-io/magma-lava", branch = "main", optional = true }
+magma-lava = { version = "0.2.7", optional = true }

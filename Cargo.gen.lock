@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
-  "cargo_lock_sha256": "8430b7ba730f50d319ff569d0e8afc344f598afb0ad5da6853b7662cd06491d8",
+  "cargo_lock_sha256": "6e2af0302be267b512f009cf896758cf9a5addc6ccb46b5b1fccf1782283fbc8",
   "manifest_sha256": {
-    "Cargo.toml": "d9c871e70f9b90882eb8e3082d50d85762de1b0bee5231daa9098ca9f82c6c43"
+    "Cargo.toml": "b792cd0ae6cf40410ccfbcad3fd5a7123ecc59613badcae7c95588d1d9ad2bb4"
   },
   "target_resolves": {
     "base": {
@@ -4506,7 +4506,7 @@
           },
           {
             "name": "magma_lava",
-            "package_key": "magma-lava-0.2.6-ed1cd149cb205507dbbf35c53a03ebb9a58f37c8",
+            "package_key": "magma-lava-0.2.7",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -5003,11 +5003,11 @@
           "std"
         ]
       },
-      "magma-config-0.1.18-dd6447bbaa13432b4d56e31a3699c6d9d27c6a4c": {
+      "magma-config-0.1.20": {
         "runtime_dependencies": [
           {
             "name": "magma_types",
-            "package_key": "magma-types-0.1.18-dd6447bbaa13432b4d56e31a3699c6d9d27c6a4c",
+            "package_key": "magma-types-0.1.20",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -5061,7 +5061,7 @@
         "build_dependencies": [],
         "features": []
       },
-      "magma-lava-0.2.6-ed1cd149cb205507dbbf35c53a03ebb9a58f37c8": {
+      "magma-lava-0.2.7": {
         "runtime_dependencies": [
           {
             "name": "indexmap",
@@ -5127,7 +5127,7 @@
           },
           {
             "name": "magma_config",
-            "package_key": "magma-config-0.1.18-dd6447bbaa13432b4d56e31a3699c6d9d27c6a4c",
+            "package_key": "magma-config-0.1.20",
             "kind": "normal",
             "features": [],
             "uses_default_features": true,
@@ -5171,7 +5171,7 @@
         "build_dependencies": [],
         "features": []
       },
-      "magma-types-0.1.18-dd6447bbaa13432b4d56e31a3699c6d9d27c6a4c": {
+      "magma-types-0.1.20": {
         "runtime_dependencies": [
           {
             "name": "chrono",
@@ -10299,13 +10299,13 @@
     "log-0.4.33": {
       "edition": "2021"
     },
-    "magma-config-0.1.18-dd6447bbaa13432b4d56e31a3699c6d9d27c6a4c": {
+    "magma-config-0.1.20": {
       "edition": "2024"
     },
-    "magma-lava-0.2.6-ed1cd149cb205507dbbf35c53a03ebb9a58f37c8": {
+    "magma-lava-0.2.7": {
       "edition": "2024"
     },
-    "magma-types-0.1.18-dd6447bbaa13432b4d56e31a3699c6d9d27c6a4c": {
+    "magma-types-0.1.20": {
       "edition": "2024"
     },
     "matchers-0.2.0": {
@@ -10644,10 +10644,6 @@
       "build_script": "build.rs"
     }
   },
-  "git_nar_sha256": {
-    "magma-config-0.1.18-dd6447bbaa13432b4d56e31a3699c6d9d27c6a4c": "sha256-4RB9DMHHemUudm9Fqlbr5ZIvjq70dTRyvpDeUz+Z9Z0=",
-    "magma-lava-0.2.6-ed1cd149cb205507dbbf35c53a03ebb9a58f37c8": "sha256-zoQA5crx9TxGVk+KGP8a2T94gc9XV01MT8SGP2SqIcU=",
-    "magma-types-0.1.18-dd6447bbaa13432b4d56e31a3699c6d9d27c6a4c": "sha256-4RB9DMHHemUudm9Fqlbr5ZIvjq70dTRyvpDeUz+Z9Z0="
-  },
+  "git_nar_sha256": {},
   "flake_metadata": {}
 }
