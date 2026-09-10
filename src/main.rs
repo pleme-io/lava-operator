@@ -29,6 +29,13 @@ fn main() {
 fn run_controller() {
     #[allow(unused_imports)]
     use std::sync::Arc;
+    // Two rustls providers land in the dep graph (aws-lc-rs via
+    // kube-rs, ring via reqwest transitives), so no single default
+    // gets picked automatically — the runtime panics with
+    // "Could not automatically determine the process-level
+    // CryptoProvider". Pin aws-lc-rs (kube-rs's own preference).
+    #[cfg(feature = "magma-bridge")]
+    let _ = rustls::crypto::aws_lc_rs::default_provider().install_default();
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
