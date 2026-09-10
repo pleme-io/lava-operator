@@ -1381,6 +1381,7 @@ dependencies = [
  "magma-config 0.1.31",
  "magma-lava",
  "magma-types 0.1.31",
+ "rustls",
  "schemars",
  "serde",
  "serde_json",

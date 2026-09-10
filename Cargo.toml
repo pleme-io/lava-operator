@@ -40,7 +40,7 @@ controller = [
 # `magma-bridge` plugs magma-lava in as the synthesize backend. Use
 # together with `controller` to get the binary's `run` subcommand
 # driving real .tlisp → terraform.json synthesis in cluster.
-magma-bridge = ["dep:magma-lava", "dep:magma-apply", "dep:magma-backend", "dep:magma-config", "dep:magma-types"]
+magma-bridge = ["dep:magma-lava", "dep:magma-apply", "dep:magma-backend", "dep:magma-config", "dep:magma-types", "dep:rustls"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
@@ -72,6 +72,7 @@ magma-lava = { version = "0.2.7", optional = true }
 # crates aren't all pinned to versioned crates.io releases yet. Pin
 # to the same rev so all four transit the same graph.
 magma-apply    = { git = "https://github.com/pleme-io/magma", rev = "24d476edfa4d715f5cb9dcb9807257d32d91eb5e", optional = true }
+rustls         = { version = "0.23", features = ["aws-lc-rs"], optional = true }
 magma-backend  = { git = "https://github.com/pleme-io/magma", rev = "24d476edfa4d715f5cb9dcb9807257d32d91eb5e", optional = true }
 magma-config   = { git = "https://github.com/pleme-io/magma", rev = "24d476edfa4d715f5cb9dcb9807257d32d91eb5e", optional = true }
 magma-types    = { git = "https://github.com/pleme-io/magma", rev = "24d476edfa4d715f5cb9dcb9807257d32d91eb5e", optional = true }

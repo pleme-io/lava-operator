@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
-  "cargo_lock_sha256": "b08bcf5624805f81ce3c813f5d7cc9d77efa0b4efbb2fd160c3c1a9e4a579775",
+  "cargo_lock_sha256": "fe0bad614f0b56326cb7d0f35b641a37bceb7d642d1b8fcb92552588cf68f509",
   "manifest_sha256": {
-    "Cargo.toml": "1516c3b01d2fe52da4f534bdef8ca9f3960d64fa4f8a4c945aed56d43b71eacc"
+    "Cargo.toml": "55241e494c496fc1123414b128ab01a3fe520877f5e0d1bab3b72506e2300137"
   },
   "target_resolves": {
     "base": {
@@ -5202,6 +5202,18 @@
             "package_key": "magma-types-0.1.31-24d476edfa4d715f5cb9dcb9807257d32d91eb5e",
             "kind": "normal",
             "features": [],
+            "uses_default_features": true,
+            "optional": true,
+            "target": null,
+            "tree": "target"
+          },
+          {
+            "name": "rustls",
+            "package_key": "rustls-0.23.43",
+            "kind": "normal",
+            "features": [
+              "aws-lc-rs"
+            ],
             "uses_default_features": true,
             "optional": true,
             "target": null,
