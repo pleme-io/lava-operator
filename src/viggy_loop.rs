@@ -42,6 +42,35 @@ where
     pub source_address: ResourceAddress,
     pub detector: DriftDetector<B>,
     pub chain: Arc<Mutex<OutcomeChain<OutcomePayload, S, G>>>,
+    /// The typed [`crate::Source`] the CR carries. Used by the `act`
+    /// beat's real-apply path (magma_bridge::apply_changes takes the
+    /// typed variant, not the rendered `source_text` string).
+    /// `None` disables the real-apply path — act stays the stub
+    /// "auto-correct enqueued" default. Present when the operator was
+    /// built with `--features magma-bridge` AND the reconcile loop
+    /// wired a `MagmaApplyConfig`.
+    #[cfg(feature = "magma-bridge")]
+    pub apply_config: Option<MagmaApplyConfig>,
+}
+
+/// Configuration the `act` beat needs to actually invoke magma
+/// against the cloud. Assembled by the reconcile loop per CR + passed
+/// to [`LavaPromessaController`] before the tick.
+#[cfg(feature = "magma-bridge")]
+#[derive(Clone)]
+pub struct MagmaApplyConfig {
+    pub source: crate::Source,
+    /// Where magma persists `terraform.tfstate` for this CR. Mounted
+    /// from an emptyDir (ephemeral apply) or a PVC (durable apply).
+    pub workspace_dir: std::path::PathBuf,
+    /// Provider local name → provider config JSON. Same shape a
+    /// Terraform `provider "<name>" { ... }` block takes; the Discord
+    /// provider expects `{"token": "<bot-token>"}`.
+    pub provider_configs: std::collections::BTreeMap<String, serde_json::Value>,
+    /// Directory prepended to `PATH` before spawning provider
+    /// binaries. The lava-operator chart mounts the shared plugin
+    /// volume here.
+    pub plugin_dir: Option<std::path::PathBuf>,
 }
 
 /// Context carried between beats. Today: the resolved spec source
@@ -79,6 +108,104 @@ where
         self.detector
             .scan(&self.source_text, bindings)
             .map_err(|e: PlannerError| ViggyError::Diff(e.to_string()))
+    }
+
+    /// Real apply override: when the CR carries a `MagmaApplyConfig`
+    /// and the anomaly router asks for auto-correct, drive one
+    /// magma apply cycle end-to-end (synthesize → refresh → plan →
+    /// run-with-providers → persist). Map the outcome onto the
+    /// engine's `TickPhase`:
+    ///
+    /// * every planned change applied cleanly → `Stable` with
+    ///   `"N/N applied"` diagnostic;
+    /// * some failed → `Reconverging` (next tick tries again) with the
+    ///   first failure surfaced;
+    /// * apply-cycle infrastructure error (state read / provider
+    ///   spawn / config parse) → `Failed`.
+    ///
+    /// The default arm — `apply_config: None` OR a non-AutoCorrect
+    /// decision — delegates to the trait default (the "auto-correct
+    /// enqueued" stub) so drift-only clusters keep byte-identical
+    /// behavior.
+    #[cfg(feature = "magma-bridge")]
+    fn act(
+        &self,
+        _ctx: &Self::Context,
+        decision: &lava_anomaly::RoutingDecision,
+        _report: &DriftReport,
+    ) -> Result<(TickPhase, Option<String>), ViggyError> {
+        use lava_anomaly::RemediationAction;
+        if !matches!(decision.action, RemediationAction::AutoCorrect) {
+            // Fall through to the default mapping.
+            return Ok(match decision.action {
+                RemediationAction::NoOp | RemediationAction::Alert => (TickPhase::Stable, None),
+                RemediationAction::RequireApproval => (
+                    TickPhase::HoldingForApproval,
+                    Some("awaiting LavaApproval CR".into()),
+                ),
+                RemediationAction::Escalate => (TickPhase::Escalated, Some("escalation notified".into())),
+                RemediationAction::AutoCorrect => unreachable!("guarded by match above"),
+            });
+        }
+
+        let Some(apply_config) = self.apply_config.as_ref() else {
+            // AutoCorrect requested but no apply wiring — keep the
+            // old stub semantics so a partial config doesn't lie
+            // about having applied.
+            return Ok((TickPhase::Reconverging, Some("auto-correct enqueued".into())));
+        };
+
+        // The engine's tick() is sync-inside-async. block_on-ing the
+        // caller's tokio Handle here would deadlock the runtime, so
+        // spawn a dedicated OS thread with its own current-thread
+        // runtime for the apply cycle.
+        let src = apply_config.source.clone();
+        let ws = apply_config.workspace_dir.clone();
+        let pcfg = apply_config.provider_configs.clone();
+        let pdir = apply_config.plugin_dir.clone();
+        let bindings: IndexMap<String, String> = IndexMap::new(); // TODO: thread through decide()
+
+        let (tx, rx) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            let rt = tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build();
+            let rt = match rt {
+                Ok(rt) => rt,
+                Err(e) => {
+                    let _ = tx.send(Err(format!("apply runtime: {e}")));
+                    return;
+                }
+            };
+            let result = rt.block_on(crate::magma_bridge::apply_changes(
+                &src, &bindings, ws, pcfg, pdir,
+            ));
+            let _ = tx.send(result);
+        });
+
+        let outcome = rx
+            .recv()
+            .map_err(|e| ViggyError::Act(format!("apply thread: {e}")))?
+            .map_err(ViggyError::Act)?;
+
+        let applied = outcome.applied.len();
+        let failed = outcome.failed.len();
+        let total = applied + failed;
+        if failed == 0 {
+            Ok((TickPhase::Stable, Some(format!("{applied}/{total} applied"))))
+        } else {
+            let first_reason = outcome
+                .failed
+                .first()
+                .map(|f| f.reason.clone())
+                .unwrap_or_default();
+            Ok((
+                TickPhase::Reconverging,
+                Some(format!(
+                    "{applied}/{total} applied, {failed} failed (first: {first_reason})"
+                )),
+            ))
+        }
     }
 
     fn attest(&self, report: &TickReport) -> Result<(), ViggyError> {
@@ -211,6 +338,8 @@ mod tests {
             source_address: ResourceAddress::new("rio", "lava-system", "demo"),
             detector: DriftDetector::new(MockPlanner::new(findings)),
             chain: shared_in_memory_chain(),
+            #[cfg(feature = "magma-bridge")]
+            apply_config: None,
         }
     }
 

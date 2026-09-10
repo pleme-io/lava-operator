@@ -413,6 +413,8 @@ pub async fn reconcile_one(
         source_address: address.clone(),
         detector,
         chain: ctx.chain.clone(),
+        #[cfg(feature = "magma-bridge")]
+        apply_config: build_apply_config(&spec, &ns, &name),
     };
 
     let engine = engine_with_default_router(controller_, RemediationPolicy::default());
@@ -459,6 +461,54 @@ pub async fn reconcile_one(
         .map(|d| Duration::from_secs(d.requeue_after.num_seconds().max(1) as u64))
         .unwrap_or_else(|| Duration::from_secs(30));
     Ok(Action::requeue(requeue))
+}
+
+/// Assemble the [`crate::viggy_loop::MagmaApplyConfig`] the `act`
+/// beat drives, from the CR's spec + the operator's environment.
+///
+/// Reads the following env, all optional (a missing one disables
+/// real-apply for that CR — the beat falls back to the "enqueued"
+/// stub):
+///
+/// * `LAVA_OPERATOR_PROVIDER_PLUGIN_DIR` — dir where the operator's
+///   provider initContainers copied their binaries. Prepended to
+///   PATH for magma's gRPC spawn.
+/// * `LAVA_OPERATOR_WORKSPACE_DIR` — parent dir for per-CR magma
+///   state. Defaults to `/var/lib/lava-operator/workspaces`.
+/// * `DISCORD_TOKEN` — bot token for the `discord` provider,
+///   projected into the provider block as `{"token": "<val>"}`.
+///
+/// Returns `None` when the CR carries no Source the bridge can
+/// resolve (only Git today needs a git fetcher not yet in the
+/// operator; Inline + Name work today).
+#[cfg(feature = "magma-bridge")]
+fn build_apply_config(
+    spec: &crate::LavaArchitectureSpec,
+    ns: &str,
+    name: &str,
+) -> Option<crate::viggy_loop::MagmaApplyConfig> {
+    let workspace_root = std::env::var("LAVA_OPERATOR_WORKSPACE_DIR")
+        .unwrap_or_else(|_| "/var/lib/lava-operator/workspaces".to_string());
+    let workspace_dir = std::path::PathBuf::from(workspace_root).join(format!("{ns}--{name}"));
+
+    let plugin_dir = std::env::var("LAVA_OPERATOR_PROVIDER_PLUGIN_DIR")
+        .ok()
+        .map(std::path::PathBuf::from);
+
+    let mut provider_configs = std::collections::BTreeMap::new();
+    if let Ok(token) = std::env::var("DISCORD_TOKEN") {
+        provider_configs.insert(
+            "discord".to_string(),
+            serde_json::json!({ "token": token }),
+        );
+    }
+
+    Some(crate::viggy_loop::MagmaApplyConfig {
+        source: spec.source.clone(),
+        workspace_dir,
+        provider_configs,
+        plugin_dir,
+    })
 }
 
 pub fn error_policy(
