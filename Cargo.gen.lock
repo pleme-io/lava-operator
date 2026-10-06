@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "cargo_lock_sha256": "f7400d0e74b4c3d63518955489548e477c406e408bbfd568b423856dac1c5da1",
+  "cargo_lock_sha256": "f0db702a76bac16323e3bfcebab68930c0163e0e9e2298e8c863323c925abd09",
   "manifest_sha256": {
     "Cargo.toml": "92fdbc82738604231265bb0151726c838af16feadb83d96dceb6ba2e4fd499b2"
   },
@@ -2426,7 +2426,7 @@
           },
           {
             "name": "rustls",
-            "package_key": "rustls-0.23.43",
+            "package_key": "rustls-0.23.45",
             "kind": "normal",
             "features": [],
             "uses_default_features": false,
@@ -3219,7 +3219,7 @@
           },
           {
             "name": "rustls",
-            "package_key": "rustls-0.23.43",
+            "package_key": "rustls-0.23.45",
             "kind": "normal",
             "features": [],
             "uses_default_features": false,
@@ -6018,7 +6018,7 @@
         "build_dependencies": [],
         "features": []
       },
-      "rustls-0.23.43": {
+      "rustls-0.23.45": {
         "runtime_dependencies": [
           {
             "name": "log",
@@ -6067,7 +6067,7 @@
           },
           {
             "name": "webpki",
-            "package_key": "rustls-webpki-0.103.13",
+            "package_key": "rustls-webpki-0.103.15",
             "kind": "normal",
             "features": [
               "alloc"
@@ -6146,7 +6146,7 @@
           "std"
         ]
       },
-      "rustls-webpki-0.103.13": {
+      "rustls-webpki-0.103.15": {
         "runtime_dependencies": [
           {
             "name": "ring",
@@ -7177,7 +7177,7 @@
         "runtime_dependencies": [
           {
             "name": "rustls",
-            "package_key": "rustls-0.23.43",
+            "package_key": "rustls-0.23.45",
             "kind": "normal",
             "features": [
               "std"
@@ -10415,7 +10415,7 @@
     "rustc_version-0.4.1": {
       "edition": "2018"
     },
-    "rustls-0.23.43": {
+    "rustls-0.23.45": {
       "edition": "2021",
       "build_script": "build.rs"
     },
@@ -10428,7 +10428,7 @@
     "rustls-pki-types-1.15.1": {
       "edition": "2021"
     },
-    "rustls-webpki-0.103.13": {
+    "rustls-webpki-0.103.15": {
       "edition": "2021",
       "lib_target": {
         "name": "webpki",
