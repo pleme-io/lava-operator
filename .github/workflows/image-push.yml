@@ -29,7 +29,7 @@ permissions:
 
 jobs:
   amd64:
-    uses: pleme-io/substrate/.github/workflows/image-push.yml@main
+    uses: pleme-io/flows/.github/workflows/image-push.yml@main
     with:
       imageAttr: dockerImage-amd64
       imageName: pleme-io/lava-operator
